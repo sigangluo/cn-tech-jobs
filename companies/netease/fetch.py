@@ -20,7 +20,7 @@ BASE = "https://hr.163.com"
 API = BASE + "/api/hr163/position/queryPage"
 PAGE = 100   # 单页条数，接口上限（500 会失败）
 DELAY = 0.3  # 请求间隔，避免给服务器压力
-# workType 的含义是根据职位名称推断的（官方没有说明）：0 社招，1 实习，2 外包/派遣。只要社招
+# workType：0 社招（页面上标「全职」），1 实习，2 外包/派遣（这一条是根据职位名称推断的）。只要社招
 SOCIAL = "0"
 
 session = new_session(**{"Origin": BASE, "Referer": BASE + "/job-list.html", "authType": "ursAuth", "language": "zh"})
@@ -67,7 +67,7 @@ def fetch():
             id=p["id"], title=p.get("name"), category=p.get("firstPostTypeName"),
             cities=p.get("workPlaceNameList") or [], dept=p.get("firstDepName"), years=years, pref_years=pref,
             date=datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d %H:%M") if ts else "",
-            url=f"{BASE}/job-detail.html?id={p['id']}",
+            url=f"{BASE}/job-detail.html?id={p['id']}&lang=zh",   # 必须带 lang=zh，否则站点会把访问者带回首页
             description=p.get("description"), requirement=p.get("requirement"),
             extra={"业务线": p.get("productName"), "年限来源": source,
                    "学历要求": p.get("reqEducationName"), "招聘人数": p.get("recruitNum")}))

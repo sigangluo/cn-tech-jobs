@@ -430,7 +430,7 @@
       h('ul', null,
         h('li', null, `数据来自各公司官网公开的招聘接口，每周一更新；这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
         h('li', null, '工作年限是从任职要求文本里自动识别的「最低年限」（如「3-5 年」记为 3 年）。「未提及」指任职要求里没写年限；「明确不限」指写了不限，或写的是 0-N 年 / N 年以内这类没有最低门槛的要求。个别写法特殊的职位可能识别有误，以官网为准。'),
-        h('li', null, '职位直达链接按各站点的地址规则生成' + (noLink.length ? `，${noLink.join('、')}暂无` : '') + '；打不开时请到官网职位列表按标题搜索。'),
+        h('li', null, '「打开职位页」指向各公司官网的职位详情页' + (noLink.length ? `（${noLink.join('、')}暂无直达链接）` : '') + '；打不开时请到官网职位列表按标题搜索。'),
         updated.length ? h('li', null, `${updated.join('、')}的日期是更新时间而非发布时间。`) : null,
         ...D.companies.filter(c => c.note).map(c => h('li', null, `${c.name}：${c.note}`)),
         h('li', null, '下载 CSV：', ...D.companies.flatMap(c => [
