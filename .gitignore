@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.env
+*.token
+
+# 抓取和生成的数据不进 main：它们由 scripts/publish.py 单独发布到 gh-pages 分支（每次只保留一个提交）
+/data/
+/site/data/
