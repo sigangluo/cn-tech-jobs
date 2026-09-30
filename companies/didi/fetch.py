@@ -54,6 +54,7 @@ def fetch():
         jobs.append(make_job(
             id=p["jdId"], code=p.get("jdNo"), title=p.get("jobName"), category=p.get("jobTypeName"),
             cities=[p.get("workArea")], dept=p.get("deptName"), years=years, pref_years=pref,
-            date=p.get("createTime"), description=p.get("jobDuty"), requirement=p.get("jobQualification"),
+            date=p.get("createTime"), url=f"https://talent.didiglobal.com/social/jobDetail?jdId={p['jdId']}",
+            description=p.get("jobDuty"), requirement=p.get("jobQualification"),
             extra={"更新时间": p.get("refreshTime")}))
     return jobs

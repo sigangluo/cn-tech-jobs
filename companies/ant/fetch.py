@@ -83,6 +83,7 @@ def fetch():
             id=p["id"], code=p.get("code"), title=p.get("name"), category=head, subcategory=sub,
             cities=p.get("workLocations") or [], dept=p.get("department"), years=years(p.get("experience")),
             date=datetime.fromisoformat(ts).astimezone(CST).strftime("%Y-%m-%d %H:%M") if ts else "",
+            url=f"https://talent.antgroup.com/off-campus-position?positionId={p['id']}",   # 页面自带的 tid 参数是跟踪用的，不需要
             description=p.get("description"), requirement=p.get("requirement"),
             extra={"学历": DEGREE.get(p.get("degree"), p.get("degree"))}))
     return jobs
