@@ -4,7 +4,7 @@ from datetime import datetime
 
 from lib.http import call_json, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="网易",
@@ -13,7 +13,7 @@ META = dict(
     # 网易的一级分类里，游戏程序（客户端 / 服务端开发）、人工智能（算法）、游戏测试（测试开发）都是技术岗，和「技术」合并
     categories={"技术": "技术", "游戏程序": "技术", "人工智能": "技术", "游戏测试": "技术", "产品": "产品"},
     date_label="更新时间",
-    facets=[("业务线", "业务线"), ("部门", "dept"), ("学历", "学历要求")],
+    facets=[("职位类别", "category"), ("所属产品", "业务线"), ("部门", "dept"), ("学历", "学历要求")],
     note="「技术」= 网易的「技术」+「游戏程序」+「人工智能」+「游戏测试」；游戏策划、游戏艺术、运营、市场等类别未收录",
 )
 
@@ -32,21 +32,6 @@ def search(page):
     return call_json(lambda: session.post(API, json=body, timeout=30), lambda j: j.get("code") == 200, "网易")["data"]
 
 
-def resolve_years(p):
-    """返回 (工作年限, 年限来源, 优先年限)。
-
-    接口的 reqWorkYearsName 是粗粒度档位（不限 / 0-3年 / 3-5年…）。接口写"不限"时，再去任职要求里找：
-    找到具体年限就用它；找不到才保留"不限"。接口给了具体档位时直接沿用。
-    """
-    api = p.get("reqWorkYearsName")
-    req, pref = parse_years(p.get("requirement"))
-    if api and api != "不限":
-        return api, "接口", pref
-    if req not in ("未提及", "不限"):
-        return req, "任职要求", pref
-    return "不限", "接口", pref
-
-
 def fetch():
     raw, page = {}, 1
     while True:
@@ -62,7 +47,7 @@ def fetch():
     for p in raw.values():
         if p.get("workType") != SOCIAL:
             continue
-        years, source, pref = resolve_years(p)
+        years, pref, source = resolve_years(p.get("reqWorkYearsName"), p.get("requirement"))
         ts = p.get("updateTime")
         jobs.append(make_job(
             id=p["id"], title=p.get("name"), category=p.get("firstPostTypeName"),

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from lib.http import FetchError, call_json, new_session
 from lib.schema import make_job
+from lib.years import resolve_years
 
 GUESS_TECH, GUESS_PRODUCT = "技术（无类别，按职位名识别）", "产品（无类别，按职位名识别）"
 
@@ -20,7 +21,7 @@ META = dict(
     categories={"技术类": "技术", "技术": "技术", "产品类": "产品", "产品": "产品",
                 GUESS_TECH: "技术", GUESS_PRODUCT: "产品"},
     date_label="发布时间",
-    facets=[("事业群", "dept"), ("细分类别", "subcategory"), ("学历", "学历")],
+    facets=[("事业群", "dept"), ("职位类别", "category"), ("细分类别", "subcategory"), ("学历", "学历")],
     note="汇总官网 talent.alibaba.com 下所有事业群的岗位。事业群是抓各事业群自己的招聘站再按职位 id 对应的，"
          "少数岗位（事业群站点抓取受 500 条上限限制或站点打不开的，如阿里云、飞猪）对应不上，显示为「（未标注）」；"
          "淘天、阿里云、盒马等事业群的大部分岗位接口没有给类别，这部分按职位名识别技术 / 产品（含 工程师 / 研发 / 算法 / 产品经理 等，"
@@ -146,12 +147,13 @@ def fetch():
         head, _, sub = ((p.get("categories") or [""])[0]).partition("-")   # "技术类-安全" -> 技术类 / 安全
         if not head:
             head = guess_category(p.get("name")) or ""
+        y, pref, source = resolve_years(years(p.get("experience")), p.get("requirement"))
         ts = p.get("publishTime")
         jobs.append(make_job(
             id=p["id"], code=p.get("code"), title=p.get("name"), category=head, subcategory=sub,
-            cities=p.get("workLocations") or [], dept=bg_of.get(p["id"]), years=years(p.get("experience")),
+            cities=p.get("workLocations") or [], dept=bg_of.get(p["id"]), years=y, pref_years=pref,
             date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d %H:%M") if ts else "",
             url=detail_url(bg_of.get(p["id"]), p["id"]),
             description=p.get("description"), requirement=p.get("requirement"),
-            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree"))}))
+            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree")), "年限来源": source}))
     return jobs

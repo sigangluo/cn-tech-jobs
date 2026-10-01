@@ -53,7 +53,10 @@
 
   function passes(j) {
     if (S.cos.size && !S.cos.has(j.c)) return false;
-    for (const [i, v] of Object.entries(S.fac)) if (v && (j.f || [])[i] !== v) return false;   // 公司专属维度（只在选中一家公司时才会有值）
+    for (const [i, v] of Object.entries(S.fac)) {
+      const fv = (j.f || [])[i];
+      if (v && !(Array.isArray(fv) ? fv.includes(v) : fv === v)) return false;
+    }   // 公司专属维度（只在选中一家公司时才会有值）
     if (S.cats.size && !S.cats.has(j.cat)) return false;
     if (S.city && !j.ci.includes(S.city)) return false;
     if (S.yb !== '' && j.yb !== +S.yb) return false;
@@ -259,7 +262,10 @@
           h('div', null, h('h4', null, '职位描述'), h('div', { class: 'txt' }, desc || '（无）')),
           h('div', null, h('h4', null, '任职要求'), h('div', { class: 'txt' }, req || '（无）'))),
         h('div', { class: 'detail-actions' }, link,
-          ...(CO[j.c].facets || []).map((f, i) => ((j.f || [])[i] && j.f[i] !== NO_VALUE ? h('span', null, `${f.label}：${j.f[i]}`) : null)),
+          ...(CO[j.c].facets || []).map((f, i) => {
+            const v = [].concat((j.f || [])[i] || []).filter(x => x && x !== NO_VALUE);
+            return v.length ? h('span', null, `${f.label}：${v.join('、')}`) : null;
+          }),
           j.yp ? h('span', null, '优先年限：' + j.yp) : null));
     } catch (e) {
       td.replaceChildren(empty('职位描述加载失败，请刷新重试。'));

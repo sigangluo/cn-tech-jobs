@@ -30,8 +30,10 @@ def _load(d):
         raise RuntimeError(f"companies/{key} 的 META['date_label'] 只能是「发布时间」或「更新时间」")
     facets = meta.get("facets", [])
     if not isinstance(facets, (list, tuple)) or not all(
-            isinstance(f, (list, tuple)) and len(f) == 2 and all(isinstance(x, str) and x for x in f) for f in facets):
-        raise RuntimeError(f"companies/{key} 的 META['facets'] 必须是 [(显示名, 数据来源), ...]，来源是 'subcategory'、'dept' 或 extra 里的列名")
+            isinstance(f, (list, tuple)) and len(f) in (2, 3) and all(isinstance(x, str) and x for x in f)
+            and (len(f) == 2 or f[2] == "multi") for f in facets):
+        raise RuntimeError(f"companies/{key} 的 META['facets'] 必须是 [(显示名, 数据来源[, 'multi']), ...]，来源是 'category'、'subcategory'、'dept' 或 extra 里的列名；"
+                           f"一个职位可以有多个取值的（如职位标签）加第三项 'multi'，extra 里用「、」分隔")
     meta = {"order": 100, "note": "", **meta, "facets": [tuple(f) for f in facets]}
     return SimpleNamespace(key=key, dir=d, module=mod, meta=meta, data_dir=DATA_DIR / key)
 

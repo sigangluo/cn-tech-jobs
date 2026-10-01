@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from lib.http import FetchError, call_json, new_session
 from lib.schema import make_job
+from lib.years import resolve_years
 
 META = dict(
     name="蚂蚁集团",
@@ -14,7 +15,7 @@ META = dict(
     categories={"技术类": "技术", "技术": "技术", "LB技术": "技术", "AL技术": "技术",
                 "产品类": "产品", "产品": "产品", "LB产品": "产品"},
     date_label="发布时间",
-    facets=[("细分类别", "subcategory"), ("业务板块", "dept"), ("学历", "学历")],
+    facets=[("职位类别", "category"), ("细分类别", "subcategory"), ("部门", "dept"), ("学历", "学历")],
 )
 
 API = "https://hrcareersweb.antgroup.com/api/social/position/search"
@@ -79,12 +80,13 @@ def fetch():
     jobs = []
     for p in crawl().values():
         head, _, sub = ((p.get("categories") or [""])[0]).partition("-")   # "技术类-开发" -> 技术类 / 开发
+        y, pref, source = resolve_years(years(p.get("experience")), p.get("requirement"))
         ts = p.get("publishTime")
         jobs.append(make_job(
             id=p["id"], code=p.get("code"), title=p.get("name"), category=head, subcategory=sub,
-            cities=p.get("workLocations") or [], dept=p.get("department"), years=years(p.get("experience")),
+            cities=p.get("workLocations") or [], dept=p.get("department"), years=y, pref_years=pref,
             date=datetime.fromisoformat(ts).astimezone(CST).strftime("%Y-%m-%d %H:%M") if ts else "",
             url=f"https://talent.antgroup.com/off-campus-position?positionId={p['id']}",   # 页面自带的 tid 参数是跟踪用的，不需要
             description=p.get("description"), requirement=p.get("requirement"),
-            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree"))}))
+            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree")), "年限来源": source}))
     return jobs

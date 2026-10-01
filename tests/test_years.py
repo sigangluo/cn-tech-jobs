@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from lib.schema import BUCKETS, make_job, min_years, validate, year_bucket
-from lib.years import parse_years
+from lib.years import parse_years, resolve_years
 
 
 class ParseYears(unittest.TestCase):
@@ -55,6 +55,30 @@ class ParseYears(unittest.TestCase):
         text = "2、AI素养与学习能力优先：对AI有兴趣；\n4、丰富的实战经验：5年及以上数据分析经验；有平台型产品经验者加分；"
         self.check(text, "5年以上")
 
+    def test_item_number_glued_to_years(self):
+        # 条目编号和数字连在一起，不能当小数：这些都来自真实的腾讯职位
+        self.check("1.本科及以上学历，有扎实的计算机学科基础；\n2.3年以上iOS平台开发经验, 熟练使用各种系统框架；\n3.熟悉 TCP/IP", "3年以上")
+        self.check("1.1-3年左右工作经验，对产品深度理解；\n2.具备完整内容策略输出能力；", "1-3年左右")
+        self.check("1.10年以上游戏开发经验，5年以上 Unity 客户端开发经验；\n2.至少完整参与过 1 款已上线项目", "10年以上")
+        self.check("1.5年以上客户端研发经验，精通 TypeScript；\n2.3年以上Unity开发经验；\n3.良好的数学基础", "5年以上")
+        self.check("职位要求：1.本科；2.3年以上工作经验；3.沟通能力强", "3年以上")   # 同一行里的编号
+
+    def test_real_decimal_is_kept(self):
+        self.check("具备1.5年以上经验", "1.5年以上")
+        self.check("要求：1.5年以上后端经验", "1.5年以上")
+
+    def test_plus_before_year(self):
+        self.check("本科及以上学历，5+年以上分布式互联网后端服务研发经验", "5年以上")
+        self.check("1.本科学历以上，10+年工作经验", "10年以上")
+        self.check("5年+互联网产品经验", "5年以上")
+
+    def test_priority_in_the_middle_of_a_line_is_not_a_heading(self):
+        # 真实的字节职位：第 1 条里「…经验者优先：LLM…」不是分节标题，第 3 条的 3 年是硬性要求
+        text = ("1、对大模型技术有一定的知识积累，具有3年以上算法策略工程师工作经验者优先：LLM Prompt Engineering；熟悉LoRA等微调技术；\n"
+                "2、熟悉RAG、Agent，具备大模型应用落地经验者优先；\n"
+                "3、熟练使用SQL；3年以上算法开发经验，具备扎实的机器学习基础；\n4、具备优秀的数据敏感度")
+        self.check(text, "3年以上", "3年以上")
+
     def test_first_experience_year_wins(self):
         self.check("3年以上研发经验，1年以上AI研发经验", "3年以上")
 
@@ -97,3 +121,28 @@ class Validate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResolveYears(unittest.TestCase):
+    """官网的结构化字段和任职要求冲突时，以任职要求里写的为准。"""
+
+    def test_text_wins_over_official(self):
+        # 真实的腾讯职位：官网字段写「不限」，任职要求里写了 3 年以上
+        self.assertEqual(resolve_years("不限", "1.本科及以上学历，3年以上游戏策划经验；\n2.热爱游戏"), ("3年以上", "", "任职要求"))
+        self.assertEqual(resolve_years("3年以上", "1.本科；\n2.5年以上产品工作经验"), ("5年以上", "", "任职要求"))
+
+    def test_official_when_text_is_silent(self):
+        self.assertEqual(resolve_years("3年以上", "熟悉 Python，良好的沟通能力"), ("3年以上", "", "官网字段"))
+        self.assertEqual(resolve_years("3-5年", None), ("3-5年", "", "官网字段"))
+
+    def test_no_limit(self):
+        self.assertEqual(resolve_years("不限", "熟悉 Python"), ("不限", "", "官网字段"))
+        self.assertEqual(resolve_years(None, "工作经验不限"), ("不限", "", "任职要求"))
+        self.assertEqual(resolve_years("3年以上", "工作经验不限"), ("3年以上", "", "官网字段"))
+
+    def test_nothing_known(self):
+        self.assertEqual(resolve_years(None, "熟悉 Python"), ("未提及", "", ""))
+        self.assertEqual(resolve_years("未提及", ""), ("未提及", "", ""))
+
+    def test_preferred_comes_from_text(self):
+        self.assertEqual(resolve_years("3年以上", "具备以下条件者优先：\n1、5年以上经验"), ("3年以上", "5年以上", "官网字段"))

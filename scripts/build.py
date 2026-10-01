@@ -46,9 +46,13 @@ def cities_of(job):
 NO_VALUE = "（未标注）"
 
 
-def facet_value(job, source):
-    """专属筛选维度的取值：来源是标准字段 subcategory / dept，或者 extra 里的列名。空值统一记为"（未标注）"。"""
-    v = job["subcategory"] if source == "subcategory" else job["dept"] if source == "dept" else job["extra"].get(source, "")
+def facet_value(job, source, multi=False):
+    """专属筛选维度的取值：来源是标准字段 category（官网原始一级类别）/ subcategory / dept，或者 extra 里的列名。
+    空值统一记为"（未标注）"。multi 的维度（如职位标签）一个职位可以有多个值，返回列表，extra 里用「、」分隔。"""
+    v = {"category": job["category"], "subcategory": job["subcategory"], "dept": job["dept"]}.get(source) \
+        or job["extra"].get(source, "")
+    if multi:
+        return [x.strip() for x in v.split("、") if x.strip()] or [NO_VALUE]
     return v or NO_VALUE
 
 
@@ -71,7 +75,7 @@ def load_company(c):
                 "y": j["years"], "ym": ymin, "yb": year_bucket(j["years"], ymin), "yp": j["pref_years"],
                 "dp": j["dept"], "dt": j["date"][:10],
                 "u": j["url"] if j["url"].startswith("https://") else "",
-                **({"f": [facet_value(j, src) for _, src in facets]} if facets else {}),
+                **({"f": [facet_value(j, f[1], len(f) > 2) for f in facets]} if facets else {}),
             })
             jd[j["id"]] = [j["description"], j["requirement"]]
     if len(jobs) != len({j["id"] for j in jobs}):
@@ -83,10 +87,11 @@ def facet_defs(c, all_jobs):
     """这家公司的专属筛选维度：[{label, values: [[取值, 职位数], ...]}]，取值按职位数从多到少。"""
     mine = [j for j in all_jobs if j["c"] == c.key]
     out = []
-    for i, (label, source) in enumerate(c.meta["facets"]):
+    for i, (label, source, *_) in enumerate(c.meta["facets"]):
         counts = {}
         for j in mine:
-            counts[j["f"][i]] = counts.get(j["f"][i], 0) + 1
+            for v in (j["f"][i] if isinstance(j["f"][i], list) else [j["f"][i]]):
+                counts[v] = counts.get(v, 0) + 1
         if set(counts) <= {NO_VALUE}:
             print(f"⚠ {c.meta['name']} 的专属筛选「{label}」（来源 {source}）所有职位都没有值，来源名是不是写错了？")
         out.append({"label": label, "values": sorted(counts.items(), key=lambda kv: (kv[0] == NO_VALUE, -kv[1], kv[0]))})
