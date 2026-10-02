@@ -57,7 +57,7 @@
   function passes(j, skip) {
     if (skip !== 'co' && S.cos.size && !S.cos.has(j.c)) return false;
     for (const [i, v] of Object.entries(S.fac)) {
-      if (skip === 'f' + i) continue;
+      if (skip === 'f' + i || skip === 'co') continue;   // 专属维度属于选中的那家公司；算公司数量时不带它，否则其他公司全是 0、没法再加
       const fv = (j.f || [])[i];
       if (v && !(Array.isArray(fv) ? fv.includes(v) : fv === v)) return false;
     }   // 公司专属维度（只在选中一家公司时才会有值）

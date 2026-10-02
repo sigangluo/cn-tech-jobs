@@ -9,7 +9,24 @@ _NUM = r"(?:\d+(?:\.\d+)?|[一二两三四五六七八九十]{1,3})"
 _YEARS_RE = re.compile(
     rf"(?P<a>{_NUM})\s*(?P<plus>[+＋])?\s*(?:[-~～—–至到]\s*(?P<b>{_NUM})\s*)?年(?P<suffix>\s*(?:及以上|以上|以内|以下|左右|\+)?)"
 )
-_EXP_WORDS = re.compile(r"经验|经历|工作|从业|开发|研发|实践|背景")
+_EXP_WORDS = re.compile(r"经验|经历|工作|从业|开发|研发|实践|背景|[Ee]xperience")
+
+# 英文职位描述：先把「3+ years」「5-8 years」「minimum 5 years」「more than 6 years」译成中文写法，再走同一套规则
+_EN_YEARS = re.compile(
+    r"(?i)(?P<lead>\b(?:minimum(?: of)?|at least|more than|over|min\.?)\s+)?(?<![\d.])(?P<a>\d{1,2})\s*(?P<plus>\+)?\s*"
+    r"(?:(?:-|–|—|to)\s*(?P<b>\d{1,2})\s*)?(?P<suf>\+)?\s*(?:years?|yrs?)\b(?!\s*(?:old|of age))"
+)
+_EN_NOT_WORK = re.compile(r"(?i)\b(?:last|past|recent|next|within|every|per|in the)\s*$")
+
+
+def _translate_english_years(text):
+    def repl(m):
+        if _EN_NOT_WORK.search(text[max(0, m.start() - 12):m.start()]):
+            return m.group(0)                      # "in the last 3 years" 不是工作年限
+        a, b = m.group("a"), m.group("b")
+        up = bool(m.group("plus") or m.group("suf") or m.group("lead"))
+        return (f"{a}-{b}年" if b else f"{a}年") + ("以上" if up and not b else "")
+    return _EN_YEARS.sub(repl, text) if re.search(r"(?i)\byears?\b|\byrs?\b", text) else text
 
 
 def _to_num(s):
@@ -36,8 +53,9 @@ _PREF_SECTION = re.compile(
     r"(?m)^[ \t]*(?:\d+[、.)）]\s*)?(?:以下[为是])?[【\[]?(?:加分项|加分条件|优先条件|优先项|加分)[】\]]?[ \t]*(?:[:：]|$)"
     rf"|(?:以下|如下)[^\n:：]{{0,12}}优先(?:考虑)?{_HEADING_END}"
     rf"|(?:者|之一)优先(?:考虑)?{_HEADING_END}|优先考虑{_HEADING_END}"
+    r"|(?im:^[ \t•\-·*]*(?:preferred|nice[- ]to[- ]have|good[- ]to[- ]have|bonus)[^\n]{0,30}$)"   # 英文的加分项小节标题
 )
-_PREF_CLAUSE = re.compile(r"优先|为佳|更佳|尤佳|者佳|加分")  # 年限所在分句里出现这些词，说明只是加分项
+_PREF_CLAUSE = re.compile(r"优先|为佳|更佳|尤佳|者佳|加分|(?i:\b(?:preferred|a plus|nice to have|good to have|bonus|desirable|advantage)\b)")  # 年限所在分句里出现这些词，说明只是加分项
 _CLAUSE_SEPS = "\n。；;，,、（）()"  # 分句分隔符：括号里的"优先"只修饰括号内的内容
 _NO_LIMIT = re.compile(r"(?:工作)?经验(?:要求)?不限(?!于)|不限(?:工作)?(?:经验|年限)|年限不限")
 
@@ -82,7 +100,7 @@ def parse_years(text):
     """
     if not isinstance(text, str):
         return "未提及", ""
-    text = _strip_item_numbers(text)
+    text = _strip_item_numbers(_translate_english_years(text))
     m0 = _PREF_SECTION.search(text)
     pref_start = m0.start() if m0 else len(text)
     required, preferred = [], []

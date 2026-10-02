@@ -123,6 +123,20 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class EnglishYears(unittest.TestCase):
+    def test_english_required(self):
+        self.assertEqual(parse_years("Bachelor's degree. 3+ years of experience in QA."), ("3年以上", ""))
+        self.assertEqual(parse_years("minimum 5 years of quality working experience"), ("5年以上", ""))
+        self.assertEqual(parse_years("More than 6 years of commercial design experience"), ("6年以上", ""))
+        self.assertEqual(parse_years("5-8 years of experience"), ("5-8年", ""))
+
+    def test_english_preferred_and_noise(self):
+        self.assertEqual(parse_years("3+ years of Python is a plus"), ("未提及", "3年以上"))
+        self.assertEqual(parse_years("Preferred Qualifications:\n- 5+ years of Go"), ("未提及", "5年以上"))
+        self.assertEqual(parse_years("In the last 3 years you shipped products"), ("未提及", ""))
+        self.assertEqual(parse_years("Must be 18 years old"), ("未提及", ""))
+
+
 class ResolveYears(unittest.TestCase):
     """官网的结构化字段和任职要求冲突时，以任职要求里写的为准。"""
 
