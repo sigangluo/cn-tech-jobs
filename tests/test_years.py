@@ -136,7 +136,7 @@ class ResolveYears(unittest.TestCase):
         self.assertEqual(resolve_years("3-5年", None), ("3-5年", "", "官网字段"))
 
     def test_no_limit(self):
-        self.assertEqual(resolve_years("不限", "熟悉 Python"), ("不限", "", "官网字段"))
+        self.assertEqual(resolve_years("不限", "熟悉 Python"), ("未提及", "", ""))   # 官网写「不限」但任职要求没提：不算明确不限
         self.assertEqual(resolve_years(None, "工作经验不限"), ("不限", "", "任职要求"))
         self.assertEqual(resolve_years("3年以上", "工作经验不限"), ("3年以上", "", "官网字段"))
 

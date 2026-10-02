@@ -145,6 +145,7 @@ input[type="search"] { width: 100%; }
 .dd-menu[hidden] { display: none; }
 .dd-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; white-space: nowrap; color: var(--ink); }
 .dd-item:hover { background: var(--wash); }
+.dd-item.zero { opacity: .45; cursor: default; }
 .dd-item input { margin: 0; width: 16px; height: 16px; accent-color: var(--ink); }
 .dd-item .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 .dd-item .n { margin-left: auto; padding-left: 16px; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }

@@ -13,7 +13,7 @@ META = dict(
     list_url="https://careers.tencent.com/home.html",
     categories={"技术": "技术", "产品": "产品"},
     date_label="更新时间",
-    facets=[("事业群", "dept"), ("产品线", "产品线"), ("国家/地区", "国家/地区")],
+    facets=[("事业群", "dept"), ("产品线", "产品线")],
     note="只收录官网「社招」（attrId=1），不含实习和海外岗位；工作年限以任职要求里写的为准，任职要求没写时用官网的「工作经验」字段"
          "（官网字段是粗档位，常和任职要求对不上，有的还写成「不限」）；优先年限从「加分项」里识别；官网没有发布时间，这里是最近更新时间",
 )
@@ -80,11 +80,11 @@ def fetch():
         jobs.append(make_job(
             id=p["PostId"], code=p.get("RecruitPostId"), title=d.get("RecruitPostName") or p["RecruitPostName"],
             category=d.get("CategoryName") or p["CategoryName"], cities=[d.get("LocationName") or p["LocationName"]],
-            dept=d.get("BGName") or p.get("BGName"),
+            country=d.get("CountryName") or p.get("CountryName"), dept=d.get("BGName") or p.get("BGName"),
             years=years, pref_years=pref,
             date="-".join(date.groups()) if date else "",
             url=f"{BASE}/jobdesc.html?postId={p['PostId']}",
             description=d.get("Responsibility"),
             requirement=requirement,
-            extra={"年限来源": source, "产品线": d.get("ProductName"), "子公司": d.get("ComName"), "国家/地区": d.get("CountryName") or p.get("CountryName")}))
+            extra={"年限来源": source, "产品线": d.get("ProductName"), "子公司": d.get("ComName")}))
     return jobs

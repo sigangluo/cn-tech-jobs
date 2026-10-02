@@ -22,6 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lib.companies import ROOT, discover
+from lib.geo import countries_of
 from lib.schema import BUCKETS, CATEGORIES, min_years, normalize_city, read_jobs, year_bucket
 
 SITE_DATA = ROOT / "site" / "data"
@@ -70,8 +71,10 @@ def load_company(c):
             if cat not in CATEGORIES:
                 continue
             ymin = min_years(j["years"])
+            cities = cities_of(j)
             jobs.append({
-                "id": j["id"], "c": c.key, "cat": cat, "rc": j["category"], "t": j["title"], "ci": cities_of(j),
+                "id": j["id"], "c": c.key, "cat": cat, "rc": j["category"], "t": j["title"], "ci": cities,
+                "cn": countries_of({"country": j["country"], "cities": cities}),
                 "y": j["years"], "ym": ymin, "yb": year_bucket(j["years"], ymin), "yp": j["pref_years"],
                 "dp": j["dept"], "dt": j["date"][:10],
                 "u": j["url"] if j["url"].startswith("https://") else "",

@@ -22,7 +22,7 @@ NO_REQ = {"不限", "未提及", ""}
 STANDARD = [
     ("id", "职位ID"), ("code", "职位编码"), ("title", "职位名称"),
     ("category", "职位类别"), ("subcategory", "二级类别"),
-    ("cities", "工作城市"), ("dept", "部门"),
+    ("cities", "工作城市"), ("country", "国家/地区"), ("dept", "部门"),
     ("years", "工作年限"), ("pref_years", "优先年限"),
     ("date", None), ("url", "链接"),
     ("description", "职位描述"), ("requirement", "任职要求"),
@@ -30,13 +30,14 @@ STANDARD = [
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
-def make_job(*, id, title, category, cities=(), years="未提及", pref_years="", date="",
+def make_job(*, id, title, category, cities=(), country="", years="未提及", pref_years="", date="",
              code="", subcategory="", dept="", url="", description="", requirement="", extra=None):
     """创建一个标准职位。
 
     id:        公司内唯一的职位 ID
     category:  公司自己的一级类别名（如"研发"），由 META["categories"] 映射成看板类别
     cities:    城市列表，如 ["北京", "上海"]
+    country:   国家/地区，如 "中国"；官网有就填，看板会出现通用的「国家/地区」筛选并和城市联动；没有就留空
     years:     必须的工作年限，如 "3年以上" / "3-5年" / "不限" / "未提及"
     pref_years: 只出现在"优先/加分"里的年限，没有就留空
     date:      "YYYY-MM-DD" 或 "YYYY-MM-DD HH:MM"，含义由 META["date_label"] 说明
@@ -46,7 +47,7 @@ def make_job(*, id, title, category, cities=(), years="未提及", pref_years=""
     s = lambda v: "" if v is None else str(v).strip()
     return {
         "id": s(id), "code": s(code), "title": s(title), "category": s(category), "subcategory": s(subcategory),
-        "cities": [s(c) for c in cities if s(c)], "dept": s(dept),
+        "cities": [s(c) for c in cities if s(c)], "country": s(country), "dept": s(dept),
         "years": s(years) or "未提及", "pref_years": s(pref_years), "date": s(date), "url": s(url),
         "description": s(description), "requirement": s(requirement),
         "extra": {k: s(v) for k, v in (extra or {}).items()},

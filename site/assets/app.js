@@ -21,8 +21,9 @@
   }
 
   let D;                                   // jobs.json
+  let CN_ORDER = [], CITY_ORDER = [], CITY_N = new Map();      // 国家/地区、城市下拉的选项顺序（按全部职位数）
   let CO = {};                             // company key -> {name, list_url, note, idx}
-  const S = { range: 'all', cos: new Set(), cats: new Set(), city: '', yb: '', q: '', sort: 'date', page: 0, view: 'chart', fac: {}, facCo: null };
+  const S = { range: 'all', cos: new Set(), cats: new Set(), country: '', city: '', yb: '', q: '', sort: 'date', page: 0, view: 'chart', fac: {}, facCo: null };
   const jdCache = {};
 
   // ---------- 提示框 ----------
@@ -51,23 +52,27 @@
     return d.toISOString().slice(0, 10);
   }
 
-  function passes(j) {
-    if (S.cos.size && !S.cos.has(j.c)) return false;
+  // skip：不计入这一个维度的条件。每个筛选框的选项数量 = 满足「除自己以外所有条件」的职位数，
+  // 这样选了某个条件，其他筛选框的数字和可选项会跟着变（选项不会和别的条件互相矛盾）。
+  function passes(j, skip) {
+    if (skip !== 'co' && S.cos.size && !S.cos.has(j.c)) return false;
     for (const [i, v] of Object.entries(S.fac)) {
+      if (skip === 'f' + i) continue;
       const fv = (j.f || [])[i];
       if (v && !(Array.isArray(fv) ? fv.includes(v) : fv === v)) return false;
     }   // 公司专属维度（只在选中一家公司时才会有值）
-    if (S.cats.size && !S.cats.has(j.cat)) return false;
-    if (S.city && !j.ci.includes(S.city)) return false;
-    if (S.yb !== '' && j.yb !== +S.yb) return false;
-    if (S.range !== 'all' && j.dt < cutoff(+S.range)) return false;
+    if (skip !== 'cat' && S.cats.size && !S.cats.has(j.cat)) return false;
+    if (skip !== 'country' && S.country && !j.cn.includes(S.country)) return false;
+    if (skip !== 'city' && S.city && !j.ci.includes(S.city)) return false;
+    if (skip !== 'yb' && S.yb !== '' && j.yb !== +S.yb) return false;
+    if (skip !== 'range' && S.range !== 'all' && j.dt < cutoff(+S.range)) return false;
     if (S.q) {
       const q = S.q.toLowerCase();
       if (!j.t.toLowerCase().includes(q) && !j.dp.toLowerCase().includes(q)) return false;
     }
     return true;
   }
-  const isDefault = () => S.range === 'all' && !S.cos.size && !S.cats.size && !S.city && S.yb === '' && !S.q && Object.values(S.fac).every(v => !v);
+  const isDefault = () => S.range === 'all' && !S.cos.size && !S.cats.size && !S.country && !S.city && S.yb === '' && !S.q && Object.values(S.fac).every(v => !v);
 
   // ---------- 概览 ----------
   function tile(label, value, sub, cls) {
@@ -91,7 +96,7 @@
   function niceScale(m) {
     if (m <= 0) return { max: 1, step: 1 };
     const rough = m / 4, p = 10 ** Math.floor(Math.log10(rough));
-    const step = [1, 2, 2.5, 5, 10].find(f => f * p >= rough) * p;
+    const step = Math.max(1, [1, 2, 2.5, 5, 10].find(f => f * p >= rough) * p);   // 计数轴刻度至少隔 1，数据很少时不会出现 0 1 1 2 2
     return { max: step * Math.ceil(m / step), step };
   }
   function barPath(x, y, w, hh, r) {       // 只圆右端（数据端），基线端保持直角
@@ -323,9 +328,46 @@
     row.replaceChildren(...(key ? [
       h('span', { class: 'fac-title' }, `${co.name} 专属筛选`),
       ...co.facets.map((f, i) => h('label', { class: 'fld' }, f.label,
-        h('select', { onchange: e => { S.fac[i] = e.target.value; update(true); } },
-          h('option', { value: '' }, '全部'),
-          ...f.values.map(([v, n]) => h('option', { value: v }, `${v}（${fmt(n)}）`)))))] : []));
+        h('select', { 'data-fac': i, onchange: e => { S.fac[i] = e.target.value; update(true); } })))] : []));
+  }
+
+  // ---------- 选项数量随其他条件联动 ----------
+  const countMap = (skip, keys) => {
+    const m = new Map();
+    for (const j of D.jobs) if (passes(j, skip)) for (const k of [].concat(keys(j))) m.set(k, (m.get(k) || 0) + 1);
+    return m;
+  };
+  // 重建一个下拉框的选项并保持当前选中值。hideZero：数量为 0 的选项直接隐藏（选项很多时）；否则置灰不可选。
+  function fillSelect(sel, allText, items, cur, hideZero) {
+    const opts = [h('option', { value: '' }, allText)];
+    for (const [v, text, n] of items) {
+      if (n === 0 && String(v) !== cur) { if (hideZero) continue; opts.push(h('option', { value: v, disabled: '' }, `${text}（0）`)); continue; }
+      opts.push(h('option', { value: v }, `${text}（${fmt(n)}）`));
+    }
+    sel.replaceChildren(...opts);
+    sel.value = cur;
+  }
+  function refreshOptions() {
+    const co = countMap('co', j => j.c), cat = countMap('cat', j => j.cat);
+    DD.company.counts(co); DD.cat.counts(cat);
+    const rows = [['all', '全部时间'], ['7', '近 7 天'], ['30', '近 30 天'], ['90', '近 90 天']];
+    const rest = D.jobs.filter(j => passes(j, 'range'));
+    $('#fRange').replaceChildren(...rows.map(([v, t]) => {
+      const n = v === 'all' ? rest.length : rest.filter(j => j.dt >= cutoff(+v)).length;
+      return h('option', { value: v }, `${t}（${fmt(n)}）`);
+    }));
+    $('#fRange').value = S.range;
+    const cn = countMap('country', j => j.cn);
+    fillSelect($('#fCountry'), '全部', [...CN_ORDER].map(c => [c, c, cn.get(c) || 0]), S.country, false);
+    const ci = countMap('city', j => j.ci);   // 没有任何筛选时只列 ≥5 个职位的城市，避免列表过长；选了条件后列出所有还有职位的城市
+    fillSelect($('#fCity'), '全部城市', CITY_ORDER.filter(c => !isDefault() || CITY_N.get(c) >= 5).map(c => [c, c, ci.get(c) || 0]), S.city, true);
+    const yb = countMap('yb', j => j.yb);
+    fillSelect($('#fYears'), '全部', D.buckets.map((b, i) => [String(i), b, yb.get(i) || 0]), S.yb, false);
+    for (const sel of document.querySelectorAll('#facetRow select')) {
+      const i = +sel.dataset.fac, f = CO[[...S.cos][0]].facets[i];
+      const fc = countMap('f' + i, j => (S.cos.has(j.c) ? (j.f || [])[i] : []));
+      fillSelect(sel, '全部', f.values.map(([v]) => [v, v, fc.get(v) || 0]), S.fac[i] || '', true);
+    }
   }
 
   // ---------- 总控 ----------
@@ -333,7 +375,8 @@
   function update(resetPage) {
     if (resetPage) S.page = 0;
     syncFacets();
-    lastF = D.jobs.filter(passes);
+    refreshOptions();
+    lastF = D.jobs.filter(j => passes(j));
     renderKpis(lastF);
     renderCharts(lastF);
     renderTable(lastF);
@@ -350,12 +393,16 @@
   function multiDropdown({ root, label, allText, summarize, options, set }) {
     const btn = h('button', { class: 'dd-btn', type: 'button', 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-labelledby': `${label} ${root.id}-t` });
     const menu = h('div', { class: 'dd-menu', role: 'group', 'aria-labelledby': label, hidden: true });
+    const items = new Map();
     const boxes = options.map(o => {
       const input = h('input', { type: 'checkbox', value: o.value });
       input.addEventListener('change', () => { input.checked ? set.add(o.value) : set.delete(o.value); update(true); });
-      menu.append(h('label', { class: 'dd-item' }, input,
+      const n = h('span', { class: 'n' }, fmt(o.count));
+      const item = h('label', { class: 'dd-item' }, input,
         o.color ? h('span', { class: 'dot', style: `background:var(${o.color})` }) : null,
-        h('span', null, o.label), h('span', { class: 'n' }, fmt(o.count))));
+        h('span', null, o.label), n);
+      menu.append(item);
+      items.set(o.value, { input, item, n });
       return input;
     });
     const clear = h('button', { class: 'dd-clear', type: 'button' }, '清除');
@@ -364,6 +411,12 @@
     const self = {
       root,
       close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); openMenus.delete(self); },
+      counts(m) {      // 随其他筛选条件更新每个选项的职位数；数量为 0 且没选中的置灰、不可选
+        for (const [v, it] of items) {
+          const n = m.get(v) || 0, dead = n === 0 && !set.has(v);
+          it.n.textContent = fmt(n); it.item.classList.toggle('zero', dead); it.input.disabled = dead;
+        }
+      },
       sync() {
         boxes.forEach(b => { b.checked = set.has(b.value); });
         const t = h('span', { id: `${root.id}-t` }, set.size ? summarize(options.filter(o => set.has(o.value))) : allText);
@@ -384,7 +437,6 @@
 
   function buildControls() {
     const opt = (v, t) => h('option', { value: v }, t);
-    $('#fRange').replaceChildren(opt('all', '全部时间'), opt('7', '近 7 天'), opt('30', '近 30 天'), opt('90', '近 90 天'));
     const countBy = f => { const m = {}; for (const j of D.jobs) m[f(j)] = (m[f(j)] || 0) + 1; return m; };
     const perCo = countBy(j => j.c), perCat = countBy(j => j.cat);
     DD.company = multiDropdown({
@@ -397,21 +449,28 @@
       summarize: sel => (sel.length === 1 ? sel[0].label : `已选 ${sel.length} 个类别`),
       options: D.categories.map((c, i) => ({ value: c, label: c, color: `--cat-${i}`, count: perCat[c] || 0 })),
     });
-    const cities = new Map();
-    for (const j of D.jobs) for (const c of j.ci) cities.set(c, (cities.get(c) || 0) + 1);
-    $('#fCity').replaceChildren(opt('', '全部城市'),
-      ...[...cities].filter(([, n]) => n >= 5).sort((a, b) => b[1] - a[1]).map(([c, n]) => opt(c, `${c}（${fmt(n)}）`)));
-    $('#fYears').replaceChildren(opt('', '全部'), ...D.buckets.map((b, i) => opt(String(i), b)));
+    // 国家/地区只有数据里带了的才显示；选项顺序按全部职位数固定，数量随其他条件变（见 refreshOptions）
+    const tally = f => { const m = new Map(); for (const j of D.jobs) for (const k of [].concat(f(j))) m.set(k, (m.get(k) || 0) + 1); return [...m].sort((x, y) => y[1] - x[1]); };
+    CN_ORDER = tally(j => j.cn).map(([c]) => c);
+    const cityTally = tally(j => j.ci);
+    CITY_ORDER = cityTally.map(([c]) => c);   // 全部城市都能选，数量为 0 的在 refreshOptions 里隐藏
+    CITY_N = new Map(cityTally);
+    $('#fldCountry').hidden = !CN_ORDER.length;
 
     $('#fRange').onchange = e => { S.range = e.target.value; update(true); };
+    $('#fCountry').onchange = e => {
+      S.country = e.target.value;
+      if (S.city && S.country && !D.jobs.some(j => j.cn.includes(S.country) && j.ci.includes(S.city))) S.city = '';   // 城市不在这个国家就清掉
+      update(true);
+    };
     $('#fCity').onchange = e => { S.city = e.target.value; update(true); };
     $('#fYears').onchange = e => { S.yb = e.target.value; update(true); };
     $('#fSort').onchange = e => { S.sort = e.target.value; update(true); };
     let timer;
     $('#fQuery').oninput = e => { clearTimeout(timer); timer = setTimeout(() => { S.q = e.target.value.trim(); update(true); }, 150); };
     $('#fReset').onclick = () => {
-      Object.assign(S, { range: 'all', city: '', yb: '', q: '' }); S.cos.clear(); S.cats.clear();
-      $('#fRange').value = 'all'; $('#fCity').value = ''; $('#fYears').value = ''; $('#fQuery').value = '';
+      Object.assign(S, { range: 'all', country: '', city: '', yb: '', q: '' }); S.cos.clear(); S.cats.clear();
+      $('#fQuery').value = '';
       update(true);
     };
     for (const b of document.querySelectorAll('.seg-ctl button'))
