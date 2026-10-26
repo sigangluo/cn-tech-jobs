@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>社招职位看板</title>
+<meta name="description" content="多家互联网公司的社招岗位看板：数量、工作年限要求、城市分布，可筛选、可查看职位描述。">
+<script>
+  // 在样式加载前应用已保存的主题，避免闪一下
+  try { var t = localStorage.getItem('jobs-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <h1>社招职位看板</h1>
+    <div class="top-actions">
+      <a class="btn" href="data/jobs.json" download>下载数据 (JSON)</a>
+      <button class="btn" id="themeBtn" type="button" aria-label="切换深色 / 浅色">◐ 主题</button>
+    </div>
+  </div>
+  <p class="lead">汇总各公司官网公开的社招岗位，对比数量、工作年限要求和城市分布。每周一更新。</p>
+  <p class="meta" id="meta">加载中…</p>
+</header>
+
+<main>
+  <section class="filters" aria-label="筛选" id="filters">
+    <label class="fld">发布时间
+      <select id="fRange"></select>
+    </label>
+    <div class="fld"><span class="fld-l" id="lCompany">公司</span><div class="dd" id="fCompany"></div></div>
+    <div class="fld"><span class="fld-l" id="lCat">类别</span><div class="dd" id="fCat"></div></div>
+    <label class="fld" id="fldCountry" hidden>国家/地区
+      <select id="fCountry"></select>
+    </label>
+    <label class="fld">城市
+      <select id="fCity"></select>
+    </label>
+    <label class="fld">工作年限
+      <select id="fYears"></select>
+    </label>
+    <label class="fld grow">搜索
+      <input type="search" id="fQuery" placeholder="职位名称 / 部门" autocomplete="off">
+    </label>
+    <button class="btn" id="fReset" type="button" hidden>清除筛选</button>
+    <div class="facets" id="facetRow" hidden></div>
+  </section>
+
+  <section class="kpis" aria-label="概览" id="kpis"></section>
+
+  <section aria-labelledby="chartsH">
+    <div class="sec-head">
+      <h2 id="chartsH">分布</h2>
+      <div class="seg-ctl" role="group" aria-label="视图">
+        <button type="button" data-view="chart" aria-pressed="true">图表</button>
+        <button type="button" data-view="table" aria-pressed="false">数据表</button>
+      </div>
+    </div>
+    <div class="legend" id="catLegend" aria-label="图例"></div>
+    <div class="grid" id="charts">
+      <article class="card" id="cardCompany"><h3>各公司职位数</h3><p class="sub">按类别堆叠</p><div class="body"></div></article>
+      <article class="card" id="cardYears"><h3>工作年限要求</h3><p class="sub">各公司内的占比，按要求的最低年限分档；灰色是任职要求里没写年限</p><div class="legend ord" id="ordLegend"></div><div class="body"></div></article>
+      <article class="card" id="cardCity"><h3>城市分布</h3><p class="sub">职位数最多的 10 个城市；多城市职位在每个城市各计一次</p><div class="body"></div></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="listH">
+    <div class="sec-head">
+      <h2 id="listH">职位列表 <span class="count" id="listCount"></span></h2>
+      <label class="fld inline">排序
+        <select id="fSort">
+          <option value="date">日期：新 → 旧</option>
+          <option value="yasc">工作年限：低 → 高</option>
+          <option value="ydesc">工作年限：高 → 低</option>
+          <option value="co">公司</option>
+        </select>
+      </label>
+    </div>
+    <div class="table-wrap">
+      <table class="jobs" id="jobsTable">
+        <thead><tr>
+          <th scope="col" class="col-co">公司</th>
+          <th scope="col">职位</th>
+          <th scope="col" class="col-cat">类别</th>
+          <th scope="col" class="col-city">城市</th>
+          <th scope="col" class="col-y">工作年限</th>
+          <th scope="col" class="col-dt">日期</th>
+        </tr></thead>
+        <tbody id="jobsBody"></tbody>
+      </table>
+    </div>
+    <nav class="pager" id="pager" aria-label="分页"></nav>
+  </section>
+</main>
+
+<footer class="foot" id="foot"></footer>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+</body>
+</html>
