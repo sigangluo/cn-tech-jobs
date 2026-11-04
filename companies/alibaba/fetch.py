@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from lib.http import FetchError, call_json, new_session
 from lib.schema import make_job
+from lib.scope import non_rnd_inferred_job
 from lib.years import resolve_years
 
 GUESS_TECH, GUESS_PRODUCT = "技术（无类别，按职位名识别）", "产品（无类别，按职位名识别）"
@@ -96,6 +97,8 @@ _PRODUCT_NOT = re.compile(r"产品运营|运营|销售|解决方案|财务|采�
 
 def guess_category(title):
     """无类别岗位的类别：产品 / 技术 / None（识别不出，不收录）。"""
+    if non_rnd_inferred_job(title):
+        return None
     parts = (title or "").split("-")
     role = parts[1] if len(parts) > 1 else parts[0]
     if _PRODUCT.search(role) and not _PRODUCT_NOT.search(role):

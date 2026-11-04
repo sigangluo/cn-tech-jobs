@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from .http import FetchError, call_json, new_session
 from .jd import split_jd
 from .schema import make_job
-from .scope import out_of_scope_title
+from .scope import non_rnd_inferred_job, out_of_scope_title
 from .years import resolve_years
 
 PAGE = 100
@@ -38,16 +38,18 @@ _PAREN = re.compile(r"[（(][^）)]*[）)]|【[^】]*】")
 _PRODUCT = re.compile(r"产品(?:经理|负责人|专家|总监|设计师)|[Pp]roduct\s*(?:Manager|Lead|Owner)|产品$")
 # 职位名里有「工程师」不代表是研发。保留软件、算法等明确的研发岗位，
 # 但剔除物流、供应商质量、产线、土建等以运营或制造为主的岗位。
-_NON_RND = re.compile(r"物流|运输|仓储|关务|SQE|品质|(?:海外|PT-?)?基建(?:成本|工程师)|土建|机电|成本|总装|涂装|NPI|包装|安环|EHS|技师", re.I)
+_NON_RND = re.compile(r"物流|运输|仓储|关务|产线|SQE|品质|(?:海外|PT-?)?基建(?:成本|工程师)|土建|机电|成本|总装|涂装|NPI|包装|安环|EHS|技师", re.I)
 _RND_CUE = re.compile(r"软件|算法|AI|数据|研发|开发|程序|硬件|芯片|数字化|信息化|机器学习|模型", re.I)
 
 
-def guess_category(title):
+def guess_category(title, description=""):
     """按职位名识别：返回 "技术" / "产品" / None。"""
+    if non_rnd_inferred_job(title, description):
+        return None
     t = _PAREN.sub("", title or "").strip()
     if _PRODUCT.search(t) and not re.search(r"运营|实习|销售|市场", t):
         return "产品"
-    if _NON_RND.search(t) and not _RND_CUE.search(t):
+    if _NON_RND.search(title or "") and not _RND_CUE.search(title or ""):
         return None
     if _TECH.search(t) and not _NOT_TECH.search(t):
         return "技术"
@@ -171,7 +173,7 @@ def fetch_jobs(host, *, portal_type=6, label=None):
         cat = function_name(p)
         if cat:
             official += 1
-        elif g := guess_category(p.get("title")):
+        elif g := guess_category(p.get("title"), p.get("description")):
             cat, guessed = GUESSED[g], guessed + 1
         else:
             cat = "（未分类）"
