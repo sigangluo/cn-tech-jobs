@@ -15,7 +15,9 @@ import time
 from datetime import datetime, timedelta, timezone
 
 from .http import FetchError, call_json, new_session
+from .jd import split_jd
 from .schema import make_job
+from .scope import out_of_scope_title
 from .years import resolve_years
 
 PAGE = 100
@@ -27,13 +29,17 @@ GUESSED = {"技术": "技术（无类别，按职位名识别）", "产品": "�
 # 各公司 META["note"] 的共同部分
 NOTE = ("只收「全职」（不含实习、外包、顾问）；工作年限以任职要求里写的为准，没写再用官网的结构化字段（有的站点没有这个字段）。"
         "官网的职能类别填写不全：有「研发」「产品 / 策划 / 项目」类别的按官网算（「产品」里会混有策划和项目管理类），"
-        "没填到职能层的按职位名识别（含 工程师 / 开发 / 算法 / 产品经理 等，可能有漏有误），识别不出的不收录")
+        "没填到职能层的按职位名识别（含 工程师 / 开发 / 算法 / 产品经理 等；排除明显的物流、制造、供应商质量岗位，可能有漏有误），识别不出的不收录")
 # 按职位名识别技术 / 产品岗：先排除明显不是的（销售、招聘、运营……），再看有没有研发类关键词
 _NOT_TECH = re.compile(r"销售|售前|售后|招聘|采购|财务|法务|商务|运营|市场|行政|客服|顾问|实习|培训|HR|BP|门店|交付|维修|喷漆|钣金|质检|质量|生产|制造|工艺|装配|焊|冲压|设备|模具|物料|供应商|安全环保|现场|知识产权|专利")
 _TECH = re.compile(r"工程师|开发|算法|架构师|研究员|科学家|软件|前端|后端|客户端|服务端|全栈|测试|运维|SRE|大模型|机器学习|深度学习|"
                    r"Android|iOS|Java|Python|C\+\+|Golang|Engineer|Developer|Scientist|数据(?:工程|挖掘|科学)|研发工程师|技术(?:专家|负责人|经理)", re.I)
 _PAREN = re.compile(r"[（(][^）)]*[）)]|【[^】]*】")
 _PRODUCT = re.compile(r"产品(?:经理|负责人|专家|总监|设计师)|[Pp]roduct\s*(?:Manager|Lead|Owner)|产品$")
+# 职位名里有「工程师」不代表是研发。保留软件、算法等明确的研发岗位，
+# 但剔除物流、供应商质量、产线、土建等以运营或制造为主的岗位。
+_NON_RND = re.compile(r"物流|运输|仓储|关务|SQE|品质|(?:海外|PT-?)?基建(?:成本|工程师)|土建|机电|成本|总装|涂装|NPI|包装|安环|EHS|技师", re.I)
+_RND_CUE = re.compile(r"软件|算法|AI|数据|研发|开发|程序|硬件|芯片|数字化|信息化|机器学习|模型", re.I)
 
 
 def guess_category(title):
@@ -41,6 +47,8 @@ def guess_category(title):
     t = _PAREN.sub("", title or "").strip()
     if _PRODUCT.search(t) and not re.search(r"运营|实习|销售|市场", t):
         return "产品"
+    if _NON_RND.search(t) and not _RND_CUE.search(t):
+        return None
     if _TECH.search(t) and not _NOT_TECH.search(t):
         return "技术"
     return None
@@ -128,9 +136,15 @@ def to_job(host, p, category, names, tops):
     官网的筛选项都带上：subcategory = 职位类别（职能层），dept = 职能分类（大类），extra 里有 职位标签（多个）/ 招聘项目 / 学历要求 / 职能细分。
     工作年限以任职要求里写的为准，没写再用官网的结构化字段（见 years.resolve_years）。
     """
+    duty = p.get("description") or ""
     req = p.get("requirement") or ""
+    if not req:
+        duty, req = split_jd(duty)
     info = p.get("job_post_info") or {}
-    years, pref, source = resolve_years(structured_years(info.get("experience"), names["job_experience"]), req)
+    # 有些官网只给一个描述字段，里面也可能写了明确的工作年限。
+    years, pref, source = resolve_years(structured_years(info.get("experience"), names["job_experience"]), req or duty)
+    if not req and source == "任职要求":
+        source = "职位描述"
     ts = p.get("publish_time")
     cities = [c.get("name") for c in (p.get("city_list") or [])] or [(p.get("city_info") or {}).get("name")]
     fn = p.get("job_function") or {}
@@ -140,7 +154,7 @@ def to_job(host, p, category, names, tops):
         id=p["id"], code=p.get("code"), title=p.get("title"), category=category, subcategory=function_name(p) or "",
         cities=cities, dept=top,
         years=years, pref_years=pref, date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d") if ts else "",
-        url=f"https://{host}/index/position/{p['id']}/detail", description=p.get("description"), requirement=req,
+        url=f"https://{host}/index/position/{p['id']}/detail", description=duty, requirement=req,
         extra={"职位标签": "、".join(t for t in tags if t),
                "招聘项目": ((p.get("job_subject") or {}).get("name") or {}).get("zh_cn") or "",
                "学历要求": names["degree_required"].get(info.get("required_degree"), ""), "职能细分": fn.get("name") if fn.get("name") != top else "", "年限来源": source})
@@ -150,7 +164,8 @@ def fetch_jobs(host, *, portal_type=6, label=None):
     """抓取一家飞书招聘站点的全部全职社招，返回标准职位（category 的取法见文件头）。"""
     session = new_client(host)
     names, tops = enums(session, host), function_tops(session, host)
-    posts = [p for p in crawl(session, host, portal_type) if (p.get("recruit_type") or {}).get("name") == "全职"]
+    posts = [p for p in crawl(session, host, portal_type)
+             if (p.get("recruit_type") or {}).get("name") == "全职" and not out_of_scope_title(p.get("title"))]
     jobs, official, guessed = [], 0, 0
     for p in posts:
         cat = function_name(p)

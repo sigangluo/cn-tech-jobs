@@ -21,10 +21,12 @@
   }
 
   let D;                                   // jobs.json
-  let CN_ORDER = [], CITY_ORDER = [], CITY_N = new Map();      // 国家/地区、城市下拉的选项顺序（按全部职位数）
+  let CN_ORDER = [];      // 国家/地区下拉的选项顺序（按全部职位数）
   let CO = {};                             // company key -> {name, list_url, note, idx}
-  const S = { range: 'all', cos: new Set(), cats: new Set(), country: '', city: '', yb: '', q: '', sort: 'date', page: 0, view: 'chart', fac: {}, facCo: null };
+  const S = { range: 'all', cos: new Set(), cats: new Set(), source: '', country: '', cities: new Set(), yb: '', q: '', sort: 'date', page: 0, view: 'chart', fac: {}, facCo: null };
+  const inferred = j => j.rc.includes('按职位名识别');
   const jdCache = {};
+  let searchMatches = null, searchVersion = 0;
 
   // ---------- 提示框 ----------
   const tip = $('#tip');
@@ -59,20 +61,22 @@
     for (const [i, v] of Object.entries(S.fac)) {
       if (skip === 'f' + i || skip === 'co') continue;   // 专属维度属于选中的那家公司；算公司数量时不带它，否则其他公司全是 0、没法再加
       const fv = (j.f || [])[i];
-      if (v && !(Array.isArray(fv) ? fv.includes(v) : fv === v)) return false;
+      if (v.size && ![].concat(fv || []).some(x => v.has(x))) return false;
     }   // 公司专属维度（只在选中一家公司时才会有值）
     if (skip !== 'cat' && S.cats.size && !S.cats.has(j.cat)) return false;
+    if (skip !== 'source' && S.source && (inferred(j) ? 'inferred' : 'official') !== S.source) return false;
     if (skip !== 'country' && S.country && !j.cn.includes(S.country)) return false;
-    if (skip !== 'city' && S.city && !j.ci.includes(S.city)) return false;
+    if (skip !== 'city' && S.cities.size && !j.ci.some(c => S.cities.has(c))) return false;
     if (skip !== 'yb' && S.yb !== '' && j.yb !== +S.yb) return false;
     if (skip !== 'range' && S.range !== 'all' && j.dt < cutoff(+S.range)) return false;
     if (S.q) {
       const q = S.q.toLowerCase();
-      if (!j.t.toLowerCase().includes(q) && !j.dp.toLowerCase().includes(q)) return false;
+      if (!j.t.toLowerCase().includes(q) && !j.dp.toLowerCase().includes(q)
+          && !(searchMatches && searchMatches.has(`${j.c}\u0000${j.id}`))) return false;
     }
     return true;
   }
-  const isDefault = () => S.range === 'all' && !S.cos.size && !S.cats.size && !S.country && !S.city && S.yb === '' && !S.q && Object.values(S.fac).every(v => !v);
+  const isDefault = () => S.range === 'all' && !S.cos.size && !S.cats.size && !S.source && !S.country && !S.cities.size && S.yb === '' && !S.q && Object.values(S.fac).every(v => !v.size);
 
   // ---------- 概览 ----------
   function tile(label, value, sub, cls) {
@@ -250,8 +254,31 @@
   };
 
   function loadJD(key) {
-    if (!jdCache[key]) jdCache[key] = fetch(`data/jd/${key}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    if (!jdCache[key]) jdCache[key] = fetch(`data/jd/${key}.json`, { cache: 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .catch(e => { delete jdCache[key]; throw e; });
     return jdCache[key];
+  }
+
+  async function searchDescriptions(q, version) {
+    S.q = q;
+    searchMatches = null;
+    $('#searchStatus').textContent = q ? '正在搜索职位描述与任职要求…' : '';
+    update(true);
+    if (!q) return;
+    const results = await Promise.allSettled(D.companies.map(c => loadJD(c.key)));
+    if (version !== searchVersion) return;
+    const matches = new Set(), needle = q.toLowerCase();
+    results.forEach((result, i) => {
+      if (result.status !== 'fulfilled') return;
+      for (const [id, fields] of Object.entries(result.value))
+        if (fields.some(v => (v || '').toLowerCase().includes(needle)))
+          matches.add(`${D.companies[i].key}\u0000${id}`);
+    });
+    searchMatches = matches;
+    $('#searchStatus').textContent = results.some(r => r.status === 'rejected')
+      ? '部分职位描述未加载，结果可能不完整；请重试搜索。' : '';
+    update(true);
   }
 
   async function fillDetail(td, j) {
@@ -282,7 +309,7 @@
     const tr = h('tr', { class: 'job' },
       h('td', { class: 'col-co' }, CO[j.c].name),
       h('td', null,
-        h('div', null, btn),
+        h('div', null, btn, inferred(j) ? h('span', { class: 'inferred', title: '官网没有职位类别，本看板按职位名称推断；请以官网职位描述为准' }, '类别推断') : null),
         j.dp ? h('div', { class: 'dept' }, j.dp) : null,
         h('div', { class: 'mobile-meta' }, `${CO[j.c].name} · ${j.cat} · ${j.ci.join('、') || '—'} · ${j.y}`)),
       h('td', { class: 'col-cat' }, j.cat),
@@ -318,17 +345,26 @@
   // 各公司的数据维度不一样（有的有二级类别，有的有业务线……），由各公司在 META["facets"] 里声明。
   // 只选中一家公司时才显示：多家公司的取值混在一起没法选。
   const NO_VALUE = '（未标注）';
+  let facetDD = [];
   function syncFacets() {
     const co = S.cos.size === 1 ? CO[[...S.cos][0]] : null;
     const key = co && co.facets.length ? co.key : null;
     if (key === S.facCo) return;                    // 公司没变就不重建，避免打字时下拉框被重置
-    S.facCo = key; S.fac = {};
+    closeAll();
+    S.facCo = key; S.fac = {}; facetDD = [];
     const row = $('#facetRow');
     row.hidden = !key;
-    row.replaceChildren(...(key ? [
-      h('span', { class: 'fac-title' }, `${co.name} 专属筛选`),
-      ...co.facets.map((f, i) => h('label', { class: 'fld' }, f.label,
-        h('select', { 'data-fac': i, onchange: e => { S.fac[i] = e.target.value; update(true); } })))] : []));
+    row.replaceChildren();
+    if (!key) return;
+    row.append(h('span', { class: 'fac-title' }, `${co.name} 专属筛选`));
+    co.facets.forEach((f, i) => {
+      const root = h('div', { class: 'dd', id: `facet-${i}` });
+      row.append(h('div', { class: 'fld' }, h('span', { class: 'fld-l', id: `facet-label-${i}` }, f.label), root));
+      S.fac[i] = new Set();
+      facetDD.push(multiDropdown({ root, label: `facet-label-${i}`, allText: '全部', set: S.fac[i],
+        summarize: sel => sel.length === 1 ? sel[0].label : `已选 ${sel.length} 项`,
+        options: f.values.map(([v, n]) => ({ value: v, label: v, count: n })) }));
+    });
   }
 
   // ---------- 选项数量随其他条件联动 ----------
@@ -358,15 +394,16 @@
     }));
     $('#fRange').value = S.range;
     const cn = countMap('country', j => j.cn);
+    const source = countMap('source', j => inferred(j) ? 'inferred' : 'official');
+    fillSelect($('#fSource'), '全部', [['official', '官网类别', source.get('official') || 0], ['inferred', '职位名推断', source.get('inferred') || 0]], S.source, false);
     fillSelect($('#fCountry'), '全部', [...CN_ORDER].map(c => [c, c, cn.get(c) || 0]), S.country, false);
-    const ci = countMap('city', j => j.ci);   // 没有任何筛选时只列 ≥5 个职位的城市，避免列表过长；选了条件后列出所有还有职位的城市
-    fillSelect($('#fCity'), '全部城市', CITY_ORDER.filter(c => !isDefault() || CITY_N.get(c) >= 5).map(c => [c, c, ci.get(c) || 0]), S.city, true);
+    const ci = countMap('city', j => j.ci);
+    DD.city.counts(ci);
     const yb = countMap('yb', j => j.yb);
     fillSelect($('#fYears'), '全部', D.buckets.map((b, i) => [String(i), b, yb.get(i) || 0]), S.yb, false);
-    for (const sel of document.querySelectorAll('#facetRow select')) {
-      const i = +sel.dataset.fac, f = CO[[...S.cos][0]].facets[i];
+    for (let i = 0; i < facetDD.length; i++) {
       const fc = countMap('f' + i, j => (S.cos.has(j.c) ? (j.f || [])[i] : []));
-      fillSelect(sel, '全部', f.values.map(([v]) => [v, v, fc.get(v) || 0]), S.fac[i] || '', true);
+      facetDD[i].counts(fc);
     }
   }
 
@@ -381,7 +418,7 @@
     renderCharts(lastF);
     renderTable(lastF);
     $('#fReset').hidden = isDefault();
-    DD.company.sync(); DD.cat.sync();
+    DD.company.sync(); DD.cat.sync(); DD.city.sync(); facetDD.forEach(d => d.sync());
   }
 
   /* 可多选的下拉框。set 是选中值的集合（空 = 不限制）；选项里的勾选框是原生 input，键盘可达，Esc 关闭并回到按钮。 */
@@ -394,6 +431,14 @@
     const btn = h('button', { class: 'dd-btn', type: 'button', 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-labelledby': `${label} ${root.id}-t` });
     const menu = h('div', { class: 'dd-menu', role: 'group', 'aria-labelledby': label, hidden: true });
     const items = new Map();
+    const search = options.length > 20 ? h('input', { type: 'search', class: 'dd-search', placeholder: '搜索选项', 'aria-label': '搜索选项' }) : null;
+    if (search) {
+      search.addEventListener('input', () => {
+        const q = search.value.trim().toLowerCase();
+        for (const [v, it] of items) it.item.hidden = !v.toLowerCase().includes(q);
+      });
+      menu.append(search);
+    }
     const boxes = options.map(o => {
       const input = h('input', { type: 'checkbox', value: o.value });
       input.addEventListener('change', () => { input.checked ? set.add(o.value) : set.delete(o.value); update(true); });
@@ -428,6 +473,7 @@
     btn.addEventListener('click', () => {
       if (!menu.hidden) return self.close();
       closeAll(self); menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); openMenus.add(self);
+      if (search) search.focus();
     });
     root.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { self.close(); btn.focus(); } });
     root.replaceChildren(btn, menu);
@@ -453,23 +499,35 @@
     const tally = f => { const m = new Map(); for (const j of D.jobs) for (const k of [].concat(f(j))) m.set(k, (m.get(k) || 0) + 1); return [...m].sort((x, y) => y[1] - x[1]); };
     CN_ORDER = tally(j => j.cn).map(([c]) => c);
     const cityTally = tally(j => j.ci);
-    CITY_ORDER = cityTally.map(([c]) => c);   // 全部城市都能选，数量为 0 的在 refreshOptions 里隐藏
-    CITY_N = new Map(cityTally);
+    DD.city = multiDropdown({
+      root: $('#fCity'), label: 'lCity', allText: '全部城市', set: S.cities,
+      summarize: sel => sel.length === 1 ? sel[0].label : `已选 ${sel.length} 个城市`,
+      options: cityTally.map(([c, n]) => ({ value: c, label: c, count: n })),
+    });
     $('#fldCountry').hidden = !CN_ORDER.length;
 
     $('#fRange').onchange = e => { S.range = e.target.value; update(true); };
+    $('#fSource').onchange = e => { S.source = e.target.value; update(true); };
     $('#fCountry').onchange = e => {
       S.country = e.target.value;
-      if (S.city && S.country && !D.jobs.some(j => j.cn.includes(S.country) && j.ci.includes(S.city))) S.city = '';   // 城市不在这个国家就清掉
+      if (S.country) for (const c of [...S.cities])
+        if (!D.jobs.some(j => j.cn.includes(S.country) && j.ci.includes(c))) S.cities.delete(c);
       update(true);
     };
-    $('#fCity').onchange = e => { S.city = e.target.value; update(true); };
     $('#fYears').onchange = e => { S.yb = e.target.value; update(true); };
     $('#fSort').onchange = e => { S.sort = e.target.value; update(true); };
     let timer;
-    $('#fQuery').oninput = e => { clearTimeout(timer); timer = setTimeout(() => { S.q = e.target.value.trim(); update(true); }, 150); };
+    $('#fQuery').oninput = e => {
+      const q = e.target.value.trim(), version = ++searchVersion;
+      clearTimeout(timer);
+      timer = setTimeout(() => searchDescriptions(q, version), 150);
+    };
     $('#fReset').onclick = () => {
-      Object.assign(S, { range: 'all', country: '', city: '', yb: '', q: '' }); S.cos.clear(); S.cats.clear();
+      ++searchVersion;
+      clearTimeout(timer);
+      searchMatches = null;
+      $('#searchStatus').textContent = '';
+      Object.assign(S, { range: 'all', source: '', country: '', yb: '', q: '' }); S.cos.clear(); S.cats.clear(); S.cities.clear();
       $('#fQuery').value = '';
       update(true);
     };
@@ -490,11 +548,13 @@
     $('#meta').textContent = `数据日期 ${D.generated} · ${D.companies.length} 家公司 · 共 ${fmt(D.jobs.length)} 个职位`;
     const noLink = D.companies.filter(c => !D.jobs.some(j => j.c === c.key && j.u)).map(c => c.name);
     const updated = D.companies.filter(c => c.date_label !== '发布时间').map(c => c.name);
+    const guessed = D.jobs.filter(inferred).length;
     $('#foot').replaceChildren(
       h('p', null, '说明'),
       h('ul', null,
         h('li', null, `数据来自各公司官网公开的招聘接口，每周一更新；这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
         h('li', null, '工作年限是从任职要求文本里自动识别的「最低年限」（如「3-5 年」记为 3 年）。「未提及」指任职要求里没写年限；「明确不限」指写了不限，或写的是 0-N 年 / N 年以内这类没有最低门槛的要求。个别写法特殊的职位可能识别有误，以官网为准。'),
+        guessed ? h('li', null, `${fmt(guessed)} 个职位的「技术 / 产品」类别由职位名称推断；可用「类别来源」筛选排除，具体岗位内容以官网为准。`) : null,
         h('li', null, '「打开职位页」指向各公司官网的职位详情页' + (noLink.length ? `（${noLink.join('、')}暂无直达链接）` : '') + '；打不开时请到官网职位列表按标题搜索。'),
         updated.length ? h('li', null, `${updated.join('、')}的日期是更新时间而非发布时间。`) : null,
         ...D.companies.filter(c => c.note).map(c => h('li', null, `${c.name}：${c.note}`)),

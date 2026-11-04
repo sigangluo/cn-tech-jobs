@@ -126,6 +126,8 @@ select, input[type="search"] {
   border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-height: 34px;
 }
 input[type="search"] { width: 100%; }
+.search-status { color: var(--ink-2); font-size: 11px; line-height: 1.2; }
+.search-status:empty { display: none; }
 /* 可多选的下拉框（公司、类别）：按钮显示当前选择，菜单里是带勾选框的选项 */
 .dd { position: relative; }
 .dd-btn {
@@ -145,7 +147,9 @@ input[type="search"] { width: 100%; }
 .dd-menu[hidden] { display: none; }
 .dd-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; white-space: nowrap; color: var(--ink); }
 .dd-item:hover { background: var(--wash); }
+.dd-item[hidden] { display: none; }
 .dd-item.zero { opacity: .45; cursor: default; }
+.dd-search { display: block; width: 100%; margin-bottom: 4px; }
 .dd-item input { margin: 0; width: 16px; height: 16px; accent-color: var(--ink); }
 .dd-item .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 .dd-item .n { margin-left: auto; padding-left: 16px; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -158,7 +162,7 @@ input[type="search"] { width: 100%; }
 .facets { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; padding-top: 12px; border-top: 1px solid var(--grid); }
 .facets[hidden] { display: none; }   /* display:flex 会盖掉 hidden 属性 */
 .facets .fac-title { font-size: 13px; font-weight: 600; color: var(--ink); align-self: center; }
-.facets select { max-width: 260px; }
+.facets .dd-btn { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 
 /* 概览 */
 .kpis { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
@@ -242,6 +246,7 @@ table.jobs tbody tr.job:hover { background: var(--wash); }
 .title-btn::before { content: "▸"; display: inline-block; width: 1em; color: var(--ink-2); transition: transform .12s; }
 .title-btn[aria-expanded="true"]::before { transform: rotate(90deg); }
 .dept { color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+.inferred { display: inline-block; margin-left: 6px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--ink-2); font-size: 11px; vertical-align: middle; }
 .pref { color: var(--ink-2); font-size: 12px; }
 .mobile-meta { display: none; color: var(--ink-2); font-size: 12px; margin-top: 2px; }
 tr.detail td { background: var(--page); padding: 14px 16px 18px; }

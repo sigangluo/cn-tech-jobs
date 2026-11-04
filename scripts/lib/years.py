@@ -13,8 +13,8 @@ _EXP_WORDS = re.compile(r"经验|经历|工作|从业|开发|研发|实践|背�
 
 # 英文职位描述：先把「3+ years」「5-8 years」「minimum 5 years」「more than 6 years」译成中文写法，再走同一套规则
 _EN_YEARS = re.compile(
-    r"(?i)(?P<lead>\b(?:minimum(?: of)?|at least|more than|over|min\.?)\s+)?(?<![\d.])(?P<a>\d{1,2})\s*(?P<plus>\+)?\s*"
-    r"(?:(?:-|–|—|to)\s*(?P<b>\d{1,2})\s*)?(?P<suf>\+)?\s*(?:years?|yrs?)\b(?!\s*(?:old|of age))"
+    r"(?i)(?P<lead>\b(?:minimum(?: of)?|at least|more than|over|min\.?)\s+)?(?<![\d.])(?P<a>\d{1,2}(?:\.\d+)?)\s*(?P<plus>\+)?\s*"
+    r"(?:(?:-|–|—|to)\s*(?P<b>\d{1,2}(?:\.\d+)?)\s*)?(?P<suf>\+)?\s*(?:years?|yrs?)\b(?!\s*(?:old|of age))"
 )
 _EN_NOT_WORK = re.compile(r"(?i)\b(?:last|past|recent|next|within|every|per|in the)\s*$")
 
@@ -100,7 +100,9 @@ def parse_years(text):
     """
     if not isinstance(text, str):
         return "未提及", ""
-    text = _strip_item_numbers(_translate_english_years(text))
+    # 先去掉与年限粘连的条目编号："2.5+ years" 在编号列表中是第 2 条的 5 年，
+    # 否则英文翻译会把它当成 2.5 年，或直接漏掉。
+    text = _translate_english_years(_strip_item_numbers(text))
     m0 = _PREF_SECTION.search(text)
     pref_start = m0.start() if m0 else len(text)
     required, preferred = [], []

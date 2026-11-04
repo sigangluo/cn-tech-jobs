@@ -10,7 +10,9 @@ from Crypto.Util.Padding import unpad
 
 from lib.feishu_hire import GUESSED, guess_category
 from lib.http import call_json, new_session
+from lib.jd import split_jd
 from lib.schema import make_job
+from lib.scope import out_of_scope_title
 from lib.years import parse_years
 
 META = dict(
@@ -54,11 +56,6 @@ def html_text(value):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def split_jd(text):
-    m = re.search(r"(?:^|\n)\s*(?:职位要求|任职要求|岗位要求|任职资格)\s*[:：]?", text)
-    return (text[:m.start()], text[m.start():]) if m else (text, "")
-
-
 def location(job):
     cities, countries = [], []
     for loc in job.get("locations") or []:
@@ -83,7 +80,7 @@ def fetch():
 
     jobs = []
     for p in posts:
-        if p.get("commitment") != "全职":
+        if p.get("commitment") != "全职" or out_of_scope_title(p.get("title")):
             continue
         official = (p.get("zhineng") or {}).get("name") or ""
         category = official if official in META["categories"] else GUESSED.get(guess_category(p.get("title")), "（未分类）")

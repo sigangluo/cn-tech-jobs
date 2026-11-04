@@ -32,17 +32,19 @@
     </label>
     <div class="fld"><span class="fld-l" id="lCompany">公司</span><div class="dd" id="fCompany"></div></div>
     <div class="fld"><span class="fld-l" id="lCat">类别</span><div class="dd" id="fCat"></div></div>
+    <label class="fld">类别来源
+      <select id="fSource"></select>
+    </label>
     <label class="fld" id="fldCountry" hidden>国家/地区
       <select id="fCountry"></select>
     </label>
-    <label class="fld">城市
-      <select id="fCity"></select>
-    </label>
+    <div class="fld"><span class="fld-l" id="lCity">城市</span><div class="dd" id="fCity"></div></div>
     <label class="fld">工作年限
       <select id="fYears"></select>
     </label>
     <label class="fld grow">搜索
-      <input type="search" id="fQuery" placeholder="职位名称 / 部门" autocomplete="off">
+      <input type="search" id="fQuery" placeholder="职位名称 / 部门 / 描述 / 要求" autocomplete="off">
+      <span class="search-status" id="searchStatus" role="status"></span>
     </label>
     <button class="btn" id="fReset" type="button" hidden>清除筛选</button>
     <div class="facets" id="facetRow" hidden></div>

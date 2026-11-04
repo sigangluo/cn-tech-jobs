@@ -129,6 +129,13 @@ class EnglishYears(unittest.TestCase):
         self.assertEqual(parse_years("minimum 5 years of quality working experience"), ("5年以上", ""))
         self.assertEqual(parse_years("More than 6 years of commercial design experience"), ("6年以上", ""))
         self.assertEqual(parse_years("5-8 years of experience"), ("5-8年", ""))
+        self.assertEqual(parse_years("At least 2.5 years of experience"), ("2.5年以上", ""))
+
+    def test_english_years_after_item_number(self):
+        text = ("1.Bachelor's degree in engineering.\n"
+                "2.5+ years of experience in supplier quality management.\n"
+                "3.Familiar with quality system audits.")
+        self.assertEqual(parse_years(text), ("5年以上", ""))
 
     def test_english_preferred_and_noise(self):
         self.assertEqual(parse_years("3+ years of Python is a plus"), ("未提及", "3年以上"))

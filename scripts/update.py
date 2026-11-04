@@ -23,9 +23,12 @@ sys.path.insert(0, str(SCRIPTS))
 from lib.companies import discover
 
 
-def run(c):
+def run(c, accept_large_drop=False):
     started = time.time()
-    p = subprocess.run([sys.executable, "-W", "ignore", str(SCRIPTS / "fetch_company.py"), c.key],
+    cmd = [sys.executable, "-W", "ignore", str(SCRIPTS / "fetch_company.py"), c.key]
+    if accept_large_drop:
+        cmd.append("--accept-large-drop")
+    p = subprocess.run(cmd,
                        capture_output=True, text=True)
     lines = [ln for ln in p.stdout.strip().splitlines() if ln]
     # 只截取最后几行，但 ⚠ 警告不能被截掉
@@ -41,6 +44,7 @@ def main():
     ap.add_argument("--only", help="只抓这些公司（key），逗号分隔")
     ap.add_argument("--build-only", action="store_true")
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--accept-large-drop", metavar="KEYS", help="确认官网确实大量下架后，接受指定公司本次超过 30%% 的数量下降；逗号分隔")
     args = ap.parse_args()
 
     if args.list:
@@ -50,10 +54,14 @@ def main():
 
     if not args.build_only:
         companies = discover(args.only.split(",") if args.only else None)
+        accepted = set(args.accept_large_drop.split(",")) if args.accept_large_drop else set()
+        unknown = accepted - {c.key for c in companies}
+        if unknown:
+            ap.error("--accept-large-drop 包含未抓取的公司: " + ", ".join(sorted(unknown)))
         print(f"并行抓取: {', '.join(c.key for c in companies)} ...")
         failed = []
         with ThreadPoolExecutor(max_workers=len(companies)) as pool:
-            for c, ok, tail, err, stale, secs in pool.map(run, companies):
+            for c, ok, tail, err, stale, secs in pool.map(lambda c: run(c, c.key in accepted), companies):
                 print(f"\n[{c.key}] {'完成' if ok else '失败'}（{secs:.0f}s）")
                 for ln in tail:
                     print("   ", ln)

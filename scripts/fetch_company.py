@@ -1,6 +1,6 @@
 """抓取单家公司，校验后写出 data/<key>/<看板类别>.csv。
 
-用法:  python3 scripts/fetch_company.py <key>
+用法:  python3 scripts/fetch_company.py <key> [--accept-large-drop]
 一般不直接用，由 update.py 并行调用；也可以单独跑来调试新加的公司。
 """
 import sys
@@ -15,15 +15,19 @@ DROP_WARN = 0.3   # 比上次少了这么多以上就报警：多半是抓取不
 
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3) or (len(sys.argv) == 3 and sys.argv[2] != "--accept-large-drop"):
         sys.exit(__doc__)
     (c,) = discover([sys.argv[1]])
+    accept_large_drop = len(sys.argv) == 3
     jobs = validate(c.module.fetch(), c.meta)
     for j in jobs:
         j["site_category"] = c.meta["categories"][j["category"]]
     before = count_rows(c.data_dir.glob("*.csv")) if c.data_dir.exists() else 0   # 覆盖前的职位数
     if before and len(jobs) < before * (1 - DROP_WARN):
-        print(f"⚠ 职位数 {before} -> {len(jobs)}，减少超过 {DROP_WARN:.0%}，可能是抓取不全，请检查上面的输出", flush=True)
+        msg = f"职位数 {before} -> {len(jobs)}，减少超过 {DROP_WARN:.0%}，可能是抓取不全"
+        if not accept_large_drop:
+            sys.exit(f"质量门槛未通过：{msg}。旧 CSV 未覆盖；确认官网确有下架后，用 --accept-large-drop 显式接受。")
+        print(f"⚠ 已显式接受：{msg}", flush=True)
     c.data_dir.mkdir(parents=True, exist_ok=True)
     written = set()
     for cat in CATEGORIES:

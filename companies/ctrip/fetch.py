@@ -3,6 +3,7 @@ import html
 import re
 
 from lib.http import FetchError, call_json, new_session
+from lib.jd import split_jd
 from lib.schema import make_job
 from lib.years import parse_years
 
@@ -38,13 +39,6 @@ def to_text(s):
     return re.sub(r"\n{3,}", "\n\n", html.unescape(re.sub(r"<[^>]+>", "", s))).strip()
 
 
-def split_jd(text):
-    """requirements 形如「职位描述\n…\n任职资格\n…」，拆成 (职责, 要求)。"""
-    m = re.search(r"\n任职资格\s*\n", text)
-    duty, req = (text[:m.start()], text[m.end():]) if m else (text, "")
-    return re.sub(r"^职位描述\s*", "", duty).strip(), req.strip()
-
-
 def fetch():
     cities = {x["code"]: x["name"] for x in post("oversea/getLocation", {"countryCode": "", "citycode": "", "type": "OverseasCareersWorkPlace"}, "携程地点")}
     cond = {"fromId": [], "keyword": "", "kind": [], "country": [], "city": [], "bucode": [], "jobFamilyCode": [],
@@ -58,6 +52,7 @@ def fetch():
         if a.get("kind") != REGULAR or a.get("jobFamilyGroupCode") not in FAMILIES:
             continue
         duty, req = split_jd(to_text(a.get("requirements")))
+        duty = re.sub(r"^职位描述\s*", "", duty).strip()
         years, pref = parse_years(req or duty)
         jobs.append(make_job(
             id=a["fromId"], title=re.sub(rf"\(?{re.escape(a['fromId'])}\)?$", "", a["jobTitle"] or "").strip(),
