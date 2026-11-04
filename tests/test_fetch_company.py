@@ -30,9 +30,11 @@ class LargeDropGate(unittest.TestCase):
                     with self.assertRaisesRegex(SystemExit, "旧 CSV 未覆盖"):
                         fetch_company.main()
                 self.assertEqual(old.read_text(encoding="utf-8"), "old data")
+                self.assertFalse((data_dir / "fetched.json").exists())
                 with patch.object(sys, "argv", ["fetch_company.py", "example", "--accept-large-drop"]):
                     fetch_company.main()
                 self.assertEqual(len(pd.read_csv(old)), 6)
+                self.assertEqual(__import__("json").loads((data_dir / "fetched.json").read_text())["rows"], 6)
 
 
 if __name__ == "__main__":

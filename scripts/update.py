@@ -76,6 +76,7 @@ def main():
 
     print("\n合并数据 ...")
     subprocess.run([sys.executable, str(SCRIPTS / "build.py")], check=True)
+    subprocess.run([sys.executable, str(SCRIPTS / "audit.py")], check=True)
 
 
 if __name__ == "__main__":

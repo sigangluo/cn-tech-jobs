@@ -101,6 +101,20 @@ def facet_defs(c, all_jobs):
     return out
 
 
+def fetched_at(c, rows):
+    """只有成功写完 CSV 的抓取才会留下时间戳；旧数据明确显示为未知。"""
+    path = c.data_dir / "fetched.json"
+    if not path.exists():
+        return None
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, KeyError):
+        sys.exit(f"{path} 无效，请重新抓取 {c.key}")
+    if manifest.get("rows") != rows or not manifest.get("fetched_at"):
+        sys.exit(f"{c.key} 抓取记录与 CSV 职位数不符，请重新抓取后再构建")
+    return manifest["fetched_at"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=date.today().isoformat(), help="数据日期 YYYY-MM-DD")
@@ -133,6 +147,7 @@ def main():
         "generated": today,
         "companies": [{"key": c.key, "name": c.meta["name"], "list_url": c.meta["list_url"],
                        "note": c.meta["note"], "date_label": c.meta["date_label"],
+                       "fetched_at": fetched_at(c, sum(j["c"] == c.key for j in all_jobs)),
                        "csv": sorted(f.stem for f in c.data_dir.glob("*.csv")),
                        "facets": facet_defs(c, all_jobs)} for c in companies],
         "categories": CATEGORIES,

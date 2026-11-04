@@ -1,6 +1,6 @@
 """把看板（含数据）发布到 gh-pages 分支，这个分支永远只有一个提交。
 
-main 分支只放代码；数据每周都在变，如果也提交到 main，旧数据会一直留在 git 历史里。
+main 分支放代码和质量报告；完整职位数据每周都在变，如果也提交到 main，旧数据会一直留在 git 历史里。
 这里的做法是：把 site/ 拷到临时目录，在里面新建一个只有一个提交的仓库，强制推送到 gh-pages。
 旧版本就没有了，线上永远只有当前这一份。
 
@@ -12,6 +12,8 @@ main 分支只放代码；数据每周都在变，如果也提交到 main，旧�
 提交作者取本仓库 git config 里的 user.name / user.email —— 发布到外部平台前请确认它是你想公开的身份。
 """
 import argparse
+import hashlib
+import json
 import shutil
 import subprocess
 import sys
@@ -42,8 +44,10 @@ def main():
     name, email = git("config", "user.name", check=False), git("config", "user.email", check=False)
     if not name or not email:
         sys.exit("git 没有配置提交作者。先在本仓库里运行:\n  git config user.name <名字>\n  git config user.email <你想公开的邮箱>")
-    import json
     generated = json.loads(jobs.read_text(encoding="utf-8"))["generated"]
+    quality = SITE / "data" / "quality.json"
+    if not quality.exists() or json.loads(quality.read_text(encoding="utf-8")).get("jobs_sha256") != hashlib.sha256(jobs.read_bytes()).hexdigest():
+        sys.exit("数据质量报告缺失或与当前 jobs.json 不匹配；先运行: python3 scripts/audit.py")
 
     with tempfile.TemporaryDirectory(prefix="jobs-publish-") as tmp:
         stage = Path(tmp)

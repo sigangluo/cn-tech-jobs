@@ -4,6 +4,8 @@
 一般不直接用，由 update.py 并行调用；也可以单独跑来调试新加的公司。
 """
 import sys
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # 让公司的 fetch.py 能 from lib... 导入
@@ -40,6 +42,9 @@ def main():
     for stale in c.data_dir.glob("*.csv"):     # META["categories"] 改过之后，清掉不再产出的旧文件
         if stale.name not in written:
             stale.unlink()
+    (c.data_dir / "fetched.json").write_text(
+        json.dumps({"fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    "rows": len(jobs)}, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"完成：共 {len(jobs)} 条 -> {c.data_dir}", flush=True)
 
 

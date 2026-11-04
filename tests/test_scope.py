@@ -46,6 +46,15 @@ class Scope(unittest.TestCase):
                 self.assertTrue(non_rnd_inferred_job(title))
                 self.assertIsNone(alibaba_guess_category(title))
 
+    def test_review_samples_exclude_service_and_factory_operations(self):
+        for title in ("运维主管", "软件刷写技工（广州）", "诚云科技-IDC运维工程师（设施）-中卫",
+                      "诚云科技-高级技术服务工程师-新金融", "诚云科技-资深IT自维修工程师-杭州",
+                      "阿里云智能-服务器生产测试专家-深圳"):
+            with self.subTest(title=title):
+                self.assertTrue(non_rnd_inferred_job(title))
+        self.assertIsNone(guess_category("运维工程师（天津）", "负责换电站设备维保、安装和故障处理"))
+        self.assertEqual(guess_category("运维工程师", "维护云上后台系统和自动化平台"), "技术")
+
     def test_logistics_software_development_is_still_in_scope(self):
         self.assertFalse(non_rnd_inferred_job("物流算法工程师"))
         self.assertEqual(guess_category("物流算法工程师"), "技术")

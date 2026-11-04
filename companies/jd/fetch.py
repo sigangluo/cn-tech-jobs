@@ -7,11 +7,13 @@ from lib.http import call_json, new_session
 from lib.schema import make_job
 from lib.years import parse_years
 
+PRODUCT_INFERRED = "产品（按职位名识别）"
+
 META = dict(
     name="京东",
     order=60,
     list_url="https://zhaopin.jd.com/web/job/job_info_list/3",
-    categories={"研发类": "技术", "产品": "产品"},
+    categories={"研发类": "技术", PRODUCT_INFERRED: "产品"},
     date_label="发布时间",
     facets=[("所属业务", "dept"), ("职位类别", "官网职位类别")],
     note="京东官网的职位分类只有研发 / 运营 / 职能 / 采销 / 金融业务，没有「产品」类，产品经理散在研发类和运营类里。"
@@ -56,9 +58,10 @@ def fetch():
         is_product = p.get("jobType") in PRODUCT_FROM and PRODUCT_TITLE.search(title or "")
         jobs.append(make_job(
             id=p["id"], code=p.get("positionCode"), title=title,
-            category="产品" if is_product else p.get("jobType"), cities=[p.get("workCity")], dept=p.get("positionDeptName"),
+            category=PRODUCT_INFERRED if is_product else p.get("jobType"), cities=[p.get("workCity")], dept=p.get("positionDeptName"),
             years=years, pref_years=pref,
             date=p.get("formatPublishTime") or (datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d") if ts else ""),
-            url="", description=p.get("workContent"), requirement=p.get("qualification"),
+            url=f"{BASE}/web/job-info-detail?requementId={p['id']}",
+            description=p.get("workContent"), requirement=p.get("qualification"),
             extra={"官网职位类别": p.get("jobType")}))
     return jobs

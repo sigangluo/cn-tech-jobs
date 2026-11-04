@@ -545,14 +545,17 @@
   }
 
   function buildTexts() {
-    $('#meta').textContent = `数据日期 ${D.generated} · ${D.companies.length} 家公司 · 共 ${fmt(D.jobs.length)} 个职位`;
+    $('#meta').textContent = `页面生成 ${D.generated} · ${D.companies.length} 家公司 · 共 ${fmt(D.jobs.length)} 个职位`;
     const noLink = D.companies.filter(c => !D.jobs.some(j => j.c === c.key && j.u)).map(c => c.name);
     const updated = D.companies.filter(c => c.date_label !== '发布时间').map(c => c.name);
     const guessed = D.jobs.filter(inferred).length;
     $('#foot').replaceChildren(
       h('p', null, '说明'),
       h('ul', null,
-        h('li', null, `数据来自各公司官网公开的招聘接口，每周一更新；这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
+        h('li', null, `数据来自各公司官网公开的招聘接口，每周一自动检查，人工核查后发布；这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
+        h('li', null, '各公司最近成功抓取时间（北京时间）：', ...D.companies.map((c, i) =>
+          `${i ? '；' : ''}${c.name} ${c.fetched_at ? new Date(c.fetched_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) : '未记录'}`)),
+        h('li', null, '本次数据质量报告：', h('a', { href: 'data/quality.json' }, '查看 JSON')),
         h('li', null, '工作年限是从任职要求文本里自动识别的「最低年限」（如「3-5 年」记为 3 年）。「未提及」指任职要求里没写年限；「明确不限」指写了不限，或写的是 0-N 年 / N 年以内这类没有最低门槛的要求。个别写法特殊的职位可能识别有误，以官网为准。'),
         guessed ? h('li', null, `${fmt(guessed)} 个职位的「技术 / 产品」类别由职位名称推断；可用「类别来源」筛选排除，具体岗位内容以官网为准。`) : null,
         h('li', null, '「打开职位页」指向各公司官网的职位详情页' + (noLink.length ? `（${noLink.join('、')}暂无直达链接）` : '') + '；打不开时请到官网职位列表按标题搜索。'),

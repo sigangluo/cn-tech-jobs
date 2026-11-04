@@ -14,6 +14,8 @@ scripts/fetch_company.py   抓取单家公司 → 校验 → 写 data/<key>/<类
 scripts/build.py           data/*/*.csv → site/data
 scripts/lib/               共用代码：schema.py（统一职位格式）、years.py（年限识别）、geo.py（城市→国家/地区）、http.py、companies.py（自动发现）
 data/<key>/<类别>.csv      抓取产物（每家每个看板类别一个文件）
+data/<key>/fetched.json  该公司最近一次成功抓取的 UTC 时间
+reports/                 每次更新的质量报告，需人工复核样本
 site/                      静态看板；site/data/ 全是生成物，不要手改
 ```
 
@@ -26,14 +28,16 @@ python3 scripts/update.py        # 并行抓取所有公司 + 合并，约 6 分
 ```
 
 1. **看输出**：每家应该显示「完成」。任何一家「失败」都会中止且不合并，按提示 `--only <key>` 重抓，再 `python3 scripts/update.py --build-only`。
-2. **核对数量**：某家公司职位数比旧 CSV 少超过 30% 时，脚本会中止且不覆盖旧 CSV。先重跑并检查官网；确认确实大量下架后，才用 `--accept-large-drop <key>` 显式接受这家公司的下降。
+2. **核对数量与质量报告**：某家公司职位数比旧 CSV 少超过 30% 时，脚本会中止且不覆盖旧 CSV。先重跑并检查官网；确认确实大量下架后，才用 `--accept-large-drop <key>` 显式接受这家公司的下降。查看 `reports/<日期>.json` 中推断类别、缺失字段和样本；报告是复核队列，不等于人工核验结果。
    看板只呈现每周一当下在招的岗位：不保存历史，不做新增 / 下架对比，也没有趋势图。
 3. **本地预览**：`python3 scripts/serve.py`，看一眼页面。不能直接双击 html，`fetch` 会被 file:// 拦住；也不要用 `http.server`，它会让浏览器缓存旧数据。
 4. 告诉用户这周的结果：各公司职位数、有没有 ⚠。**不要自动 commit / 推送 / 发布**，除非用户明确要求。
 
+`.github/workflows/weekly-audit.yml` 每周一在 Actions 里重新抓取并上传质量报告，供人工复核；它不会自动发布看板。每次手动 `update.py` 也会生成报告，`publish.py` 会校验报告与职位数据的哈希。
+
 ## 发布
 
-`main` 分支只放代码（`data/` 和 `site/data/` 被 `.gitignore` 忽略）。数据由 `scripts/publish.py` 单独发布到 `gh-pages` 分支，那个分支**永远只有一个提交**，线上只有当前这一份。
+`main` 分支放代码和质量报告（`data/` 和 `site/data/` 被 `.gitignore` 忽略）。数据由 `scripts/publish.py` 单独发布到 `gh-pages` 分支，那个分支**永远只有一个提交**，线上只有当前这一份。发布前会验证质量报告对应当前 `jobs.json`。
 
 - 用户说「发布」时：先运行 `python3 scripts/publish.py`（默认只构建和检查，不推送），把要发布的文件数、数据日期、提交作者、目标仓库告诉用户，**得到确认后**才加 `--push`。强制推送会覆盖线上内容，属于对外发布。
 - 提交作者用本仓库 `git config` 里的公开身份（GitHub noreply 邮箱），不要用内网 / 公司邮箱。

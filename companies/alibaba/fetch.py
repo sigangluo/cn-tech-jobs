@@ -111,10 +111,24 @@ def guess_category(title):
 # 详情页用浏览器验证过、能看到职位名的事业群站点之外的：菜鸟的详情页在浏览器里是空白的，链接不拼
 NO_DETAIL_LINK = {"菜鸟"}
 
+# 官网总站不提供事业群字段，部分事业群站点又只返回前 500 条。
+# 仅为在浏览器里用真实职位 ID 验证过的域名补链接；其他仍留空。
+DETAIL_TITLE_HOSTS = {
+    "阿里云智能": "careers.aliyun.com",
+    "诚云科技": "careers.aliyun.com",
+    "阿里国际": "aidc-jobs.alibaba.com",
+    "全球速卖通": "aidc-jobs.alibaba.com",
+    "LAZADA": "aidc-jobs.alibaba.com",
+    "天猫淘宝海外": "talent.taotian.com",
+    "1688": "talent.taotian.com",
+}
 
-def detail_url(bg, job_id):
+
+def detail_url(bg, job_id, title=""):
     """详情页在职位所属事业群自己的站点上；对应不上事业群、或详情页没验证通过的留空（看板会指向官网）。"""
     host = None if bg in NO_DETAIL_LINK else BG_SITES.get(bg)
+    if not host and not bg:
+        host = next((value for prefix, value in DETAIL_TITLE_HOSTS.items() if (title or "").startswith(prefix)), None)
     return f"https://{host}/off-campus/position-detail?positionId={job_id}" if host else ""
 
 
@@ -156,7 +170,7 @@ def fetch():
             id=p["id"], code=p.get("code"), title=p.get("name"), category=head, subcategory=sub,
             cities=p.get("workLocations") or [], dept=bg_of.get(p["id"]), years=y, pref_years=pref,
             date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d %H:%M") if ts else "",
-            url=detail_url(bg_of.get(p["id"]), p["id"]),
+            url=detail_url(bg_of.get(p["id"]), p["id"], p.get("name")),
             description=p.get("description"), requirement=p.get("requirement"),
             extra={"学历": DEGREE.get(p.get("degree"), p.get("degree")), "年限来源": source}))
     return jobs
