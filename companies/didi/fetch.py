@@ -3,7 +3,7 @@ import time
 
 from lib.http import call_json, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="滴滴",
@@ -50,10 +50,10 @@ def fetch():
         crawl(raw, name, job_type)
     jobs = []
     for p in raw.values():
-        years, pref = parse_years(p.get("jobQualification"))
+        years, pref, source = resolve_years(None, p.get("jobQualification"))
         jobs.append(make_job(
             id=p["jdId"], code=p.get("jdNo"), title=p.get("jobName"), category=p.get("jobTypeName"),
-            cities=[p.get("workArea")], dept=p.get("deptName"), years=years, pref_years=pref,
+            cities=[p.get("workArea")], dept=p.get("deptName"), years=years, pref_years=pref, years_source=source,
             date=p.get("createTime"), url=f"https://talent.didiglobal.com/social/jobDetail?jdId={p['jdId']}",
             description=p.get("jobDuty"), requirement=p.get("jobQualification"),
             extra={"更新时间": p.get("refreshTime")}))

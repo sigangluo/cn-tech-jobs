@@ -4,14 +4,15 @@
 所以再逐个抓一遍事业群站点，靠职位 id 反查事业群（各站点之间没有重复的 id）。"""
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
-from lib.http import FetchError, call_json, new_session
-from lib.schema import make_job
+from lib.http import FetchError, call_json, ensure_complete, get_ok, new_session
+from lib.schema import INFERRED_CATEGORY, make_job
 from lib.scope import non_rnd_inferred_job
 from lib.years import resolve_years
 
-GUESS_TECH, GUESS_PRODUCT = "技术（无类别，按职位名识别）", "产品（无类别，按职位名识别）"
+GUESS_TECH, GUESS_PRODUCT = INFERRED_CATEGORY["技术"], INFERRED_CATEGORY["产品"]
 
 META = dict(
     name="阿里巴巴",
@@ -51,7 +52,7 @@ def open_site(host):
     """新开一个会话并拿到该站点的 XSRF-TOKEN；返回搜索函数 search(页码)。"""
     page_url = f"https://{host}/off-campus/position-list?lang=zh"
     s = new_session(**{"Origin": f"https://{host}", "Referer": page_url, "Accept-Language": "zh-CN,zh;q=0.9"})
-    s.get(page_url, timeout=30)
+    get_ok(s, page_url, f"阿里巴巴 {host}")
     if not s.cookies.get("XSRF-TOKEN"):
         raise FetchError(f"阿里巴巴：{host} 没有拿到 XSRF-TOKEN，页面可能改版了")
 
@@ -65,24 +66,34 @@ def open_site(host):
     return search
 
 
-def business_groups():
-    """逐个抓事业群站点，返回 {职位 id: 事业群名}。某个站点打不开或被截断只影响这一部分岗位的事业群标注，不中止。"""
+BG_WORKERS = 5      # 事业群站点各是不同的域名，限流互不影响，可以并行；总数不要太大，免得本机同时开太多连接
+
+
+def crawl_business_group(bg, host):
+    """抓一个事业群站点，返回 {职位 id: 事业群名}。站点打不开或被截断只影响这一部分岗位的事业群标注，不中止。"""
     mapping = {}
-    for bg, host in BG_SITES.items():
-        try:
-            search, page, n = open_site(host), 1, 0
-            while True:
-                datas = search(page)["datas"]
-                if not datas:            # 这些站点的 totalCount 不可靠，翻到空页才停
-                    break
-                for p in datas:
-                    mapping[p["id"]] = bg
-                n += len(datas)
-                page += 1
-                time.sleep(0.3)
-            print(f"[{bg}] {n} 条", flush=True)
-        except Exception as e:           # 站点打不开（如飞猪是前端路由页）：这部分岗位标「未标注」
-            print(f"[{bg}] 跳过：{e}", flush=True)
+    try:
+        search, page = open_site(host), 1
+        while True:
+            datas = search(page)["datas"]
+            if not datas:            # 这些站点的 totalCount 不可靠，翻到空页才停
+                break
+            for p in datas:
+                mapping[p["id"]] = bg
+            page += 1
+            time.sleep(0.3)
+        print(f"[{bg}] {len(mapping)} 条", flush=True)
+    except Exception as e:           # 站点打不开（如飞猪是前端路由页）：这部分岗位标「未标注」
+        print(f"[{bg}] 跳过：{e}", flush=True)
+    return mapping
+
+
+def business_groups():
+    """并行抓所有事业群站点，返回 {职位 id: 事业群名}（各站点之间没有重复的 id，直接合并）。"""
+    mapping = {}
+    with ThreadPoolExecutor(max_workers=BG_WORKERS) as pool:
+        for part in pool.map(lambda kv: crawl_business_group(*kv), BG_SITES.items()):
+            mapping.update(part)
     return mapping
 
 
@@ -143,21 +154,23 @@ def years(exp):
 
 
 def fetch():
-    search = open_site(HUB)
-    raw, page = {}, 1
-    while True:
-        d = search(page)
-        for p in d["datas"]:
-            raw[p["id"]] = p
-        total = d["totalCount"]
-        print(f"第 {page} 页，累计去重 {len(raw)} / {total}", flush=True)
-        if not d["datas"] or page * PAGE >= total:
-            break
-        page += 1
-        time.sleep(DELAY)
-    if len(raw) < total * 0.99:
-        raise FetchError(f"只抓到 {len(raw)} / {total} 条")
-    bg_of = business_groups()
+    # 总站翻页（不同域名、慢）和事业群站点（并行）同时进行：之前串行，是整个项目最慢的一家（约 12 分钟）
+    with ThreadPoolExecutor(max_workers=1) as bg_pool:
+        bg_future = bg_pool.submit(business_groups)
+        search = open_site(HUB)
+        raw, page = {}, 1
+        while True:
+            d = search(page)
+            for p in d["datas"]:
+                raw[p["id"]] = p
+            total = d["totalCount"]
+            print(f"第 {page} 页，累计去重 {len(raw)} / {total}", flush=True)
+            if not d["datas"] or page * PAGE >= total:
+                break
+            page += 1
+            time.sleep(DELAY)
+        ensure_complete(len(raw), total, "阿里巴巴", tolerance=0.01)
+        bg_of = bg_future.result()
     print(f"事业群对应上 {sum(i in bg_of for i in raw)} / {len(raw)} 条", flush=True)
     jobs = []
     for p in raw.values():
@@ -168,9 +181,9 @@ def fetch():
         ts = p.get("publishTime")
         jobs.append(make_job(
             id=p["id"], code=p.get("code"), title=p.get("name"), category=head, subcategory=sub,
-            cities=p.get("workLocations") or [], dept=bg_of.get(p["id"]), years=y, pref_years=pref,
+            cities=p.get("workLocations") or [], dept=bg_of.get(p["id"]), years=y, pref_years=pref, years_source=source,
             date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d %H:%M") if ts else "",
             url=detail_url(bg_of.get(p["id"]), p["id"], p.get("name")),
             description=p.get("description"), requirement=p.get("requirement"),
-            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree")), "年限来源": source}))
+            extra={"学历": DEGREE.get(p.get("degree"), p.get("degree"))}))
     return jobs

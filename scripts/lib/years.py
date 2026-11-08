@@ -75,21 +75,22 @@ def _strip_item_numbers(text):
     return _ITEM_GLUED.sub(drop, text)
 
 
-def resolve_years(official, text):
-    """合并官网的结构化年限字段和任职要求文本，返回 (必须年限, 优先年限, 来源)。
+def resolve_years(official, text, text_label="任职要求"):
+    """合并官网的结构化年限字段和任职要求文本，返回 (必须年限, 优先年限, 来源)。**所有公司都用它**（接口没有结构化字段就传 official=None），
+    这样每个职位都有「年限来源」，质量报告才能审计年限是怎么来的。
 
     任职要求里明确写了年限就以文字为准：官网字段通常是粗档位，或者干脆没填（填了"不限"，文字里却要求 3 年以上），
     候选人读到的是文字。文字没写年限时才用官网字段里的具体年限。
     "不限"只认任职要求里明确写了的：官网字段填「不限」但任职要求没提，记「未提及」（官网字段常是没填的默认值）。
-    来源是 "任职要求" / "官网字段" / ""（都没有）。
+    来源是 text_label（默认 "任职要求"；官网只给一个描述字段、没有单独的任职要求时传 "职位描述"）/ "官网字段" / "未找到"（都没写）。
     """
     req, pref = parse_years(text)
     official = (official or "").strip()
     if req not in ("未提及", "不限"):
-        return req, pref, "任职要求"
+        return req, pref, text_label
     if official not in ("", "未提及", "不限"):
         return official, pref, "官网字段"
-    return req, pref, "任职要求" if req == "不限" else ""
+    return req, pref, text_label if req == "不限" else "未找到"
 
 
 def parse_years(text):

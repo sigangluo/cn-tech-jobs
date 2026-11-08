@@ -14,18 +14,16 @@ import re
 import time
 from datetime import datetime, timedelta, timezone
 
-from .http import FetchError, call_json, new_session
+from .http import call_json, ensure_complete, new_session
 from .jd import split_jd
-from .schema import make_job
+from .schema import INFERRED_CATEGORY, make_job
 from .scope import non_rnd_inferred_job, out_of_scope_title
 from .years import resolve_years
 
 PAGE = 100
 DELAY = 3.0         # 每页约 400KB，连续请求 4 次左右就会被限流（HTTP 429 "ratelimit triggered"）
-BACKOFF = (10, 20, 40, 60)   # 被限流后依次等待的秒数
 CST = timezone(timedelta(hours=8))
 
-GUESSED = {"技术": "技术（无类别，按职位名识别）", "产品": "产品（无类别，按职位名识别）"}   # 和阿里的写法一致
 # 各公司 META["note"] 的共同部分
 NOTE = ("只收「全职」（不含实习、外包、顾问）；工作年限以任职要求里写的为准，没写再用官网的结构化字段（有的站点没有这个字段）。"
         "官网的职能类别填写不全：有「研发」「产品 / 策划 / 项目」类别的按官网算（「产品」里会混有策划和项目管理类），"
@@ -72,19 +70,9 @@ def new_client(host):
 
 
 def _call(session, host, method, path, ok, **kw):
-    """带限流退避的请求：被限流（429 / 空内容）就按 BACKOFF 等待后重试，最后仍失败由 call_json 抛 FetchError。"""
+    """飞书招聘的请求。限流的退避由 call_json 统一处理；这个系统被限流时还可能返回空内容，也算限流。"""
     limited = lambda r: r.status_code == 429 or not r.text.strip() or r.text.startswith("ratelimit")
-
-    def send():
-        r = session.request(method, f"https://{host}{path}", timeout=30, **kw)
-        for wait in BACKOFF:
-            if not limited(r):
-                break
-            print(f"{host}: 被限流，等 {wait}s", flush=True)
-            time.sleep(wait)
-            r = session.request(method, f"https://{host}{path}", timeout=30, **kw)
-        return r
-    return call_json(send, ok, host)["data"]
+    return call_json(lambda: session.request(method, f"https://{host}{path}", timeout=30, **kw), ok, host, limited=limited)["data"]
 
 
 def search(session, host, offset, portal_type=6):
@@ -119,8 +107,7 @@ def crawl(session, host, portal_type=6):
         if offset >= total or not d["job_post_list"]:
             break
         time.sleep(DELAY)
-    if len(posts) < total:
-        raise FetchError(f"{host}: 官网共 {total} 条，只抓到 {len(posts)} 条")
+    ensure_complete(len(posts), total, host)
     return list(posts.values())
 
 
@@ -146,7 +133,7 @@ def to_job(host, p, category, names, tops):
     # 有些官网只给一个描述字段，里面也可能写了明确的工作年限。
     years, pref, source = resolve_years(structured_years(info.get("experience"), names["job_experience"]), req or duty)
     if not req and source == "任职要求":
-        source = "职位描述"
+        source = "职位描述"          # 官网没有单独的任职要求时，年限是从职位描述里读到的
     ts = p.get("publish_time")
     cities = [c.get("name") for c in (p.get("city_list") or [])] or [(p.get("city_info") or {}).get("name")]
     fn = p.get("job_function") or {}
@@ -155,11 +142,11 @@ def to_job(host, p, category, names, tops):
     return make_job(
         id=p["id"], code=p.get("code"), title=p.get("title"), category=category, subcategory=function_name(p) or "",
         cities=cities, dept=top,
-        years=years, pref_years=pref, date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d") if ts else "",
+        years=years, pref_years=pref, years_source=source, date=datetime.fromtimestamp(ts / 1000, CST).strftime("%Y-%m-%d") if ts else "",
         url=f"https://{host}/index/position/{p['id']}/detail", description=duty, requirement=req,
         extra={"职位标签": "、".join(t for t in tags if t),
                "招聘项目": ((p.get("job_subject") or {}).get("name") or {}).get("zh_cn") or "",
-               "学历要求": names["degree_required"].get(info.get("required_degree"), ""), "职能细分": fn.get("name") if fn.get("name") != top else "", "年限来源": source})
+               "学历要求": names["degree_required"].get(info.get("required_degree"), ""), "职能细分": fn.get("name") if fn.get("name") != top else ""})
 
 
 def fetch_jobs(host, *, portal_type=6, label=None):
@@ -174,7 +161,7 @@ def fetch_jobs(host, *, portal_type=6, label=None):
         if cat:
             official += 1
         elif g := guess_category(p.get("title"), p.get("description")):
-            cat, guessed = GUESSED[g], guessed + 1
+            cat, guessed = INFERRED_CATEGORY[g], guessed + 1
         else:
             cat = "（未分类）"
         jobs.append(to_job(host, p, cat, names, tops))

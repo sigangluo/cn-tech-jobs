@@ -1,4 +1,7 @@
 name: weekly data audit
+# 每周一重新抓取并生成质量报告，供人工复核；不发布看板（发布由人在本地确认后执行）。
+# 它同时是「抓取是否还能跑通」的哨兵：官网接口改版、GitHub 的服务器被官网拒绝访问，都会让这个任务失败并发邮件。
+# 也可以在 Actions 页面手动触发（workflow_dispatch）。
 on:
   schedule:
     - cron: '0 2 * * 1' # Monday 10:00 Asia/Shanghai
@@ -14,22 +17,17 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python scripts/update.py
+      - name: Crawl and audit
+        shell: bash   # 显式写 bash 才有 pipefail，否则 tee 会吞掉 update.py 的失败退出码
+        run: python scripts/update.py --allow-failures netease 2>&1 | tee update.log   # 网易的官网拒绝 GitHub 机房 IP（见 .claude/known-issues.md）
       - name: Summarize quality
         if: success()
-        run: |
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
-          import json
-          from pathlib import Path
-          p = json.loads(Path('site/data/quality.json').read_text())
-          print('| 公司 | 职位 | 类别推断 | 缺直达链接 | 缺城市 |')
-          print('|---|---:|---:|---:|---:|')
-          for c in p['companies']:
-              print(f"| {c['name']} | {c['jobs']} | {c['category_inferred']} | {c['missing_direct_link']} | {c['missing_city']} |")
-          PY
+        run: python scripts/audit.py --summary >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
-        if: success()
+        if: always()
         with:
           name: quality-report
-          path: site/data/quality.json
+          path: |
+            site/data/quality.json
+            update.log
           retention-days: 90

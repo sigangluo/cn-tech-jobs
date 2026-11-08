@@ -5,7 +5,7 @@ import re
 from lib.http import FetchError, call_json, new_session
 from lib.jd import split_jd
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="携程",
@@ -53,10 +53,10 @@ def fetch():
             continue
         duty, req = split_jd(to_text(a.get("requirements")))
         duty = re.sub(r"^职位描述\s*", "", duty).strip()
-        years, pref = parse_years(req or duty)
+        years, pref, source = resolve_years(None, req or duty, "任职要求" if req else "职位描述")
         jobs.append(make_job(
             id=a["fromId"], title=re.sub(rf"\(?{re.escape(a['fromId'])}\)?$", "", a["jobTitle"] or "").strip(),
             category=FAMILIES[a["jobFamilyGroupCode"]], cities=[cities.get(a.get("city")) or a.get("cityName")], dept=a.get("buName"),
-            years=years, pref_years=pref, date=a.get("publishDate"), url=f"{BASE}/#/experienced/job-detail/{a['fromId']}",
+            years=years, pref_years=pref, years_source=source, date=a.get("publishDate"), url=f"{BASE}/#/experienced/job-detail/{a['fromId']}",
             description=duty, requirement=req))
     return jobs

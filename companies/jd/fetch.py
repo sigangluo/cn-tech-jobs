@@ -5,7 +5,7 @@ from datetime import datetime
 
 from lib.http import call_json, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 PRODUCT_INFERRED = "产品（按职位名识别）"
 
@@ -52,14 +52,14 @@ def fetch():
         time.sleep(DELAY)
     jobs = []
     for p in raw.values():
-        years, pref = parse_years(p.get("qualification"))
+        years, pref, source = resolve_years(None, p.get("qualification"))
         ts = p.get("publishTime")
         title = p.get("positionNameOpen") or p.get("positionName")
         is_product = p.get("jobType") in PRODUCT_FROM and PRODUCT_TITLE.search(title or "")
         jobs.append(make_job(
             id=p["id"], code=p.get("positionCode"), title=title,
             category=PRODUCT_INFERRED if is_product else p.get("jobType"), cities=[p.get("workCity")], dept=p.get("positionDeptName"),
-            years=years, pref_years=pref,
+            years=years, pref_years=pref, years_source=source,
             date=p.get("formatPublishTime") or (datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d") if ts else ""),
             url=f"{BASE}/web/job-info-detail?requementId={p['id']}",
             description=p.get("workContent"), requirement=p.get("qualification"),

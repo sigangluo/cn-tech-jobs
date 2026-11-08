@@ -3,7 +3,7 @@ import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from lib.http import call_json, new_session
+from lib.http import call_json, ensure_complete, new_session
 from lib.schema import make_job
 from lib.years import parse_years, resolve_years
 
@@ -24,7 +24,7 @@ DETAIL_API = BASE + "/tencentcareer/api/post/ByPostId"
 DICT_API = BASE + "/tencentcareer/api/data/GetMultiDictionary"
 PAGE = 100
 DELAY = 0.3
-WORKERS = 5
+WORKERS = 8         # 逐条取详情（约 1500 次请求）并行的线程数。5 时约 8 分钟；若耗时表里「限流次」变高就调回来
 # 要抓的一级职位类别（官网的 parentCategoryId）。其他: 40002 设计, 40004 营销与公关, 40005 销售/服务与支持, 40006 内容 ……
 PARENT_CATEGORY_IDS = {"技术": 40001, "产品": 40003}
 
@@ -48,8 +48,7 @@ def list_posts(parent_id):
         page += 1
         time.sleep(DELAY)
     ids = {p["PostId"] for p in posts}
-    if len(ids) < total:
-        raise ValueError(f"腾讯 parentCategoryId={parent_id}: 官网共 {total} 条，只抓到 {len(ids)} 条")
+    ensure_complete(len(ids), total, f"腾讯 parentCategoryId={parent_id}")
     return list({p["PostId"]: p for p in posts}.values())
 
 
@@ -101,10 +100,10 @@ def fetch():
             category=d.get("CategoryName") or p["CategoryName"], subcategory=subcategories.get(sub_id, ""),
             cities=[d.get("LocationName") or p["LocationName"]],
             country=d.get("CountryName") or p.get("CountryName"), dept=d.get("BGName") or p.get("BGName"),
-            years=years, pref_years=pref,
+            years=years, pref_years=pref, years_source=source,
             date="-".join(date.groups()) if date else "",
             url=f"{BASE}/jobdesc.html?postId={p['PostId']}",
             description=d.get("Responsibility"),
             requirement=requirement,
-            extra={"年限来源": source, "产品线": d.get("ProductName"), "子公司": d.get("ComName")}))
+            extra={"产品线": d.get("ProductName"), "子公司": d.get("ComName")}))
     return jobs

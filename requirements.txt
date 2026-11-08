@@ -1,3 +1,4 @@
-requests>=2.28
-pandas>=1.5
-pycryptodome>=3.19
+# 用 ~= 锁定到小版本：AI 在不同时间维护这个项目，不锁版本的话依赖悄悄升级会让同一份代码换了行为。
+# 要升级时有意识地改这里，并跑一遍 python3 -m unittest discover -s tests 和一次完整更新。
+requests~=2.32
+pycryptodome~=4.2

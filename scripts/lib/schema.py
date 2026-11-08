@@ -3,9 +3,9 @@
 一个职位就是一个 dict，用 make_job() 创建。各公司特有的信息（学历、业务线……）放进 extra，
 会写进 CSV，但不参与看板。
 """
+import csv
 import re
-
-import pandas as pd
+import sys
 
 # 看板统一的职位类别。新增类别：这里加一项，并在各公司 META["categories"] 里映射过来（前端最多支持 8 个类别）。
 CATEGORIES = ["技术", "产品"]
@@ -18,19 +18,24 @@ BUCKETS = ["未提及", "明确不限", "1-2年", "3-4年", "5-7年", "8年以�
 BUCKET_EDGES = [1, 3, 5, 8]      # 最低年限 >= 这些值时依次进入 1-2年 / 3-4年 / 5-7年 / 8年以上
 NO_REQ = {"不限", "未提及", ""}
 
+# 官网没有类别字段、按职位名推断出的职位，原始类别（rc）记成这个名字。审计（audit.py）和前端（app.js 的 inferred）靠名字里的
+# INFERRED_MARK 识别「类别推断」——所以不要在别处手写这些字符串，也不要改 INFERRED_MARK 而不同步前端。
+INFERRED_MARK = "按职位名识别"
+INFERRED_CATEGORY = {"技术": f"技术（无类别，{INFERRED_MARK}）", "产品": f"产品（无类别，{INFERRED_MARK}）"}
+
 # (字段, CSV 列名)；日期列名由各公司 META["date_label"] 决定（发布时间 / 更新时间）
 STANDARD = [
     ("id", "职位ID"), ("code", "职位编码"), ("title", "职位名称"),
     ("category", "职位类别"), ("subcategory", "二级类别"),
     ("cities", "工作城市"), ("country", "国家/地区"), ("dept", "部门"),
-    ("years", "工作年限"), ("pref_years", "优先年限"),
+    ("years", "工作年限"), ("pref_years", "优先年限"), ("years_source", "年限来源"),
     ("date", None), ("url", "链接"),
     ("description", "职位描述"), ("requirement", "任职要求"),
 ]
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
-def make_job(*, id, title, category, cities=(), country="", years="未提及", pref_years="", date="",
+def make_job(*, id, title, category, cities=(), country="", years="未提及", pref_years="", years_source="", date="",
              code="", subcategory="", dept="", url="", description="", requirement="", extra=None):
     """创建一个标准职位。
 
@@ -40,6 +45,7 @@ def make_job(*, id, title, category, cities=(), country="", years="未提及", p
     country:   国家/地区，如 "中国"；官网有就填，看板会出现通用的「国家/地区」筛选并和城市联动；没有就留空
     years:     必须的工作年限，如 "3年以上" / "3-5年" / "不限" / "未提及"
     pref_years: 只出现在"优先/加分"里的年限，没有就留空
+    years_source: 年限是从哪来的，必填。直接用 lib.years.resolve_years() 返回的第三项（"任职要求" / "职位描述" / "官网字段" / "未找到"）
     date:      "YYYY-MM-DD" 或 "YYYY-MM-DD HH:MM"，含义由 META["date_label"] 说明
     url:       职位详情页，必须是 https://；没有就留空
     extra:     公司特有信息 {列名: 值}，只进 CSV
@@ -48,7 +54,8 @@ def make_job(*, id, title, category, cities=(), country="", years="未提及", p
     return {
         "id": s(id), "code": s(code), "title": s(title), "category": s(category), "subcategory": s(subcategory),
         "cities": [s(c) for c in cities if s(c)], "country": s(country), "dept": s(dept),
-        "years": s(years) or "未提及", "pref_years": s(pref_years), "date": s(date), "url": s(url),
+        "years": s(years) or "未提及", "pref_years": s(pref_years), "years_source": s(years_source),
+        "date": s(date), "url": s(url),
         "description": s(description), "requirement": s(requirement),
         "extra": {k: s(v) for k, v in (extra or {}).items()},
     }
@@ -69,6 +76,8 @@ def validate(jobs, meta):
             bad.append(f"职位 ID 重复: {j['id']}")
         elif not _DATE.match(j["date"]):
             bad.append(f"日期格式不对（要 YYYY-MM-DD…）: {j['id']} -> {j['date']!r}")
+        elif not j["years_source"]:
+            bad.append(f"没有填 years_source（年限来源）: {j['id']}。用 lib.years.resolve_years() 得到年限，它会返回来源")
         elif j["url"] and not j["url"].startswith("https://"):
             bad.append(f"链接必须是 https://: {j['id']} -> {j['url']!r}")
         seen.add(j["id"])
@@ -92,26 +101,36 @@ def validate(jobs, meta):
     return kept
 
 
+csv.field_size_limit(sys.maxsize)   # 职位描述可能很长，超过 csv 默认的单字段 128KB 上限也不能报错
+
+
+def _read_rows(path):
+    """CSV -> [{列名: 值}]，全是字符串（职位ID 之类不能被当成数字）。文件是 UTF-8 带 BOM，Excel 直接打开不乱码。"""
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f))
+
+
 def count_rows(paths):
     """CSV 里的职位数（不是文本行数：职位描述里有换行）。"""
-    return sum(len(pd.read_csv(p, usecols=["职位ID"], dtype=str)) for p in paths)
+    return sum(len(_read_rows(p)) for p in paths)
 
 
-def to_frame(jobs, date_label):
-    """职位列表 -> DataFrame（标准列 + 各公司 extra 列，extra 列按首次出现顺序排在后面）。"""
+def write_csv(path, jobs, date_label):
+    """职位列表 -> CSV（标准列 + 各公司 extra 列，extra 列按首次出现顺序排在后面）。"""
     extras = list(dict.fromkeys(k for j in jobs for k in j["extra"]))
     cols = [(f, date_label if f == "date" else label) for f, label in STANDARD]
-    rows = [{**{label: ("、".join(j[f]) if f == "cities" else j[f]) for f, label in cols},
-             **{k: j["extra"].get(k, "") for k in extras}} for j in jobs]
-    return pd.DataFrame(rows, columns=[label for _, label in cols] + extras)
+    with open(path, "w", encoding="utf-8-sig", newline="") as out:
+        w = csv.writer(out, lineterminator="\n")
+        w.writerow([label for _, label in cols] + extras)
+        for j in jobs:
+            w.writerow([("、".join(j[f]) if f == "cities" else j[f]) for f, _ in cols] + [j["extra"].get(k, "") for k in extras])
 
 
 def read_jobs(path, date_label):
     """读回 CSV -> 标准职位列表（extra 列一并还原）。"""
-    df = pd.read_csv(path, dtype=str, keep_default_na=False)
     std = {(date_label if f == "date" else label): f for f, label in STANDARD}
     jobs = []
-    for r in df.to_dict("records"):
+    for r in _read_rows(path):
         j = make_job(id=r["职位ID"], title=r["职位名称"], category=r["职位类别"])
         for label, f in std.items():
             if label in r:

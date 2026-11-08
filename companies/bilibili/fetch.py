@@ -2,9 +2,9 @@
 import re
 import time
 
-from lib.http import FetchError, call_json, new_session
+from lib.http import call_json, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="哔哩哔哩",
@@ -75,10 +75,10 @@ def fetch():
             if PRODUCT_TITLE.search(title) and "产品运营" not in title:
                 category = "产品"
         duty, req = split_jd(p.get("positionDescription"))
-        years, pref = parse_years(req or duty)
+        years, pref, source = resolve_years(None, req or duty, "任职要求" if req else "职位描述")
         jobs.append(make_job(
             id=p["id"], title=p.get("positionName"), category=category,
-            cities=(p.get("workLocation") or "").replace("，", "、").split("、"), years=years, pref_years=pref,
+            cities=(p.get("workLocation") or "").replace("，", "、").split("、"), years=years, pref_years=pref, years_source=source,
             date=(p.get("pushTime") or "")[:16], url=f"{BASE}/social/positions/{p['id']}",
             description=duty, requirement=req, extra={"官网职位类别": p.get("postCodeName")}))
     return jobs

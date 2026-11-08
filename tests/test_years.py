@@ -103,7 +103,12 @@ class Validate(unittest.TestCase):
     META = {"categories": {"研发": "技术", "产品": "产品"}}
 
     def job(self, id, category="研发", date="2026-09-30", url=""):
-        return make_job(id=id, title="t", category=category, date=date, url=url)
+        return make_job(id=id, title="t", category=category, date=date, url=url, years_source="未找到")
+
+    def test_requires_years_source(self):      # 新公司忘了记录年限来源时，要在抓取阶段就报错，而不是等质量报告里出现一堆「未记录」
+        no_source = make_job(id="1", title="t", category="研发", date="2026-09-30")
+        with self.assertRaisesRegex(ValueError, "years_source"):
+            validate([no_source], self.META)
 
     def test_ok_and_drops_other_categories(self):
         kept = validate([self.job("1"), self.job("2", "产品"), self.job("3", "运营")], self.META)
@@ -157,13 +162,14 @@ class ResolveYears(unittest.TestCase):
         self.assertEqual(resolve_years("3-5年", None), ("3-5年", "", "官网字段"))
 
     def test_no_limit(self):
-        self.assertEqual(resolve_years("不限", "熟悉 Python"), ("未提及", "", ""))   # 官网写「不限」但任职要求没提：不算明确不限
+        self.assertEqual(resolve_years("不限", "熟悉 Python"), ("未提及", "", "未找到"))   # 官网写「不限」但任职要求没提：不算明确不限
         self.assertEqual(resolve_years(None, "工作经验不限"), ("不限", "", "任职要求"))
         self.assertEqual(resolve_years("3年以上", "工作经验不限"), ("3年以上", "", "官网字段"))
 
     def test_nothing_known(self):
-        self.assertEqual(resolve_years(None, "熟悉 Python"), ("未提及", "", ""))
-        self.assertEqual(resolve_years("未提及", ""), ("未提及", "", ""))
+        self.assertEqual(resolve_years(None, "熟悉 Python"), ("未提及", "", "未找到"))
+        self.assertEqual(resolve_years("未提及", ""), ("未提及", "", "未找到"))
+        self.assertEqual(resolve_years(None, "3年以上经验", "职位描述"), ("3年以上", "", "职位描述"))   # 官网只有描述字段时，来源要如实写成「职位描述」
 
     def test_preferred_comes_from_text(self):
         self.assertEqual(resolve_years("3年以上", "具备以下条件者优先：\n1、5年以上经验"), ("3年以上", "5年以上", "官网字段"))

@@ -11,7 +11,7 @@
 """
 from lib.http import call_json, new_session   # call_json: 带重试的请求；new_session: 带 UA 的 Session
 from lib.schema import make_job               # 统一的职位格式
-from lib.years import parse_years             # 从任职要求里识别工作年限（接口没有结构化年限时用）
+from lib.years import resolve_years           # 识别工作年限并记录来源（所有公司都用它）
 
 META = dict(
     name="公司名",                          # 看板上显示的名字
@@ -33,7 +33,8 @@ def fetch():
     # 示例：
     # session = new_session(Referer="https://example.com/")
     # j = call_json(lambda: session.post(URL, json={...}, timeout=30), lambda j: j["code"] == 0, "公司名")
-    # years, pref = parse_years(p["requirement"])
+    # 接口有结构化年限字段就传进来，没有传 None；返回 (年限, 优先年限, 来源)，来源必须原样填给 years_source
+    # years, pref, source = resolve_years(p.get("experience"), p["requirement"])
     # return [make_job(id=p["id"], title=p["name"], category=p["type"], cities=[p["city"]],
-    #                  years=years, pref_years=pref, date=p["publishDate"], url=p["url"],
+    #                  years=years, pref_years=pref, years_source=source, date=p["publishDate"], url=p["url"],
     #                  description=p["duty"], requirement=p["requirement"]) for p in items]

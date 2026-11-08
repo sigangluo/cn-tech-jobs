@@ -51,10 +51,10 @@ def fetch():
         ts = p.get("updateTime")
         jobs.append(make_job(
             id=p["id"], title=p.get("name"), category=p.get("firstPostTypeName"),
-            cities=p.get("workPlaceNameList") or [], dept=p.get("firstDepName"), years=years, pref_years=pref,
+            cities=p.get("workPlaceNameList") or [], dept=p.get("firstDepName"), years=years, pref_years=pref, years_source=source,
             date=datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d %H:%M") if ts else "",
             url=f"{BASE}/job-detail.html?id={p['id']}&lang=zh",   # 必须带 lang=zh，否则站点会把访问者带回首页
             description=p.get("description"), requirement=p.get("requirement"),
-            extra={"业务线": p.get("productName"), "年限来源": source,
+            extra={"业务线": p.get("productName"),
                    "学历要求": p.get("reqEducationName"), "招聘人数": p.get("recruitNum")}))
     return jobs

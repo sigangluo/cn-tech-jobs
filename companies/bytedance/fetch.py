@@ -2,9 +2,9 @@
 import time
 from datetime import datetime
 
-from lib.http import call_json, new_session
+from lib.http import call_json, ensure_complete, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="字节跳动",
@@ -47,10 +47,11 @@ def search(offset, **filters):
 def crawl(raw, label, **filters):
     """翻页抓取一组条件下的所有职位，写入 raw（按 id 去重）。返回该条件的总数。"""
     data = search(0, **filters)
-    total, offset = data["count"], 0
+    total, offset, got = data["count"], 0, set()
     while True:
         for p in data["job_post_list"]:
             raw[p["id"]] = p
+            got.add(p["id"])
         offset += PAGE
         if offset >= min(total, SEARCH_CAP):
             break
@@ -59,6 +60,8 @@ def crawl(raw, label, **filters):
         if not data["job_post_list"]:
             break
     print(f"[{label}] 总数 {total}，累计去重 {len(raw)}", flush=True)
+    if total < SEARCH_CAP:      # 达到上限的会再按城市拆分补抓，那时单次的总数不可比
+        ensure_complete(len(got), total, f"字节 {label}")
     return total
 
 
@@ -67,11 +70,11 @@ def to_job(p):
     parent = (c.get("parent") or {}).get("name")
     ts = p.get("publish_time")
     cities = [x["name"] for x in (p.get("city_list") or []) if x.get("name")] or [(p.get("city_info") or {}).get("name")]
-    years, pref = parse_years(p.get("requirement"))
+    years, pref, source = resolve_years(None, p.get("requirement"))
     return make_job(
         id=p["id"], code=p.get("code"), title=p.get("title"),
         category=parent or c.get("name"), subcategory=c.get("name") if parent else "",
-        cities=cities, years=years, pref_years=pref,
+        cities=cities, years=years, pref_years=pref, years_source=source,
         date=datetime.fromtimestamp(ts / 1000).strftime("%Y-%m-%d %H:%M") if ts else "",
         url=f"{BASE}/experienced/position/{p['id']}/detail",
         description=p.get("description"), requirement=p.get("requirement"),

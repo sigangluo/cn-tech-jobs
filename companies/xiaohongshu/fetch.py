@@ -3,7 +3,7 @@ import time
 
 from lib.http import call_json, new_session
 from lib.schema import make_job
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="小红书",
@@ -54,11 +54,11 @@ def fetch():
         time.sleep(DELAY)
     jobs = []
     for p in raw.values():
-        years, pref = parse_years(p.get("qualification"))
+        years, pref, source = resolve_years(None, p.get("qualification"))
         jobs.append(make_job(
             id=p["positionId"], title=p.get("positionName"), category=category_of(p),
             subcategory=p.get("subDirectionName") or p.get("jobType"),
-            cities=[c for c in (p.get("workplace") or "").split("，")], years=years, pref_years=pref,
+            cities=[c for c in (p.get("workplace") or "").split("，")], years=years, pref_years=pref, years_source=source,
             date=p.get("publishTime"), url=f"{BASE}/social/position/{p['positionId']}",
             description=p.get("duty"), requirement=p.get("qualification"),
             extra={"岗位类型": p.get("jobType")}))

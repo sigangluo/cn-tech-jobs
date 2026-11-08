@@ -28,4 +28,4 @@ class SplitJD(unittest.TestCase):
         p = {"id": "1", "title": "芯片设计工程师", "description": "1.本科及以上学历，5年以上相关工作经验；\n2.熟悉芯片设计。"}
         job = to_job("example.jobs.feishu.cn", p, "技术", {"job_experience": {}, "degree_required": {}}, {})
         self.assertEqual(job["years"], "5年以上")
-        self.assertEqual(job["extra"]["年限来源"], "职位描述")
+        self.assertEqual(job["years_source"], "职位描述")

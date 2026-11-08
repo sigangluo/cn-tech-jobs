@@ -15,3 +15,5 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m unittest discover -s tests
       - run: node --check site/assets/app.js
+      - run: node --check site/assets/state.js
+      - run: node tests/state.test.js

@@ -8,19 +8,19 @@ import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
-from lib.feishu_hire import GUESSED, guess_category
+from lib.feishu_hire import guess_category
 from lib.http import call_json, new_session
 from lib.jd import split_jd
-from lib.schema import make_job
+from lib.schema import INFERRED_CATEGORY, make_job
 from lib.scope import out_of_scope_title
-from lib.years import parse_years
+from lib.years import resolve_years
 
 META = dict(
     name="智谱",
     order=120,
     list_url="https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/jobs",
     categories={"算法研究": "技术", "工程研发": "技术", "产品项目方案": "产品",
-                **{v: k for k, v in GUESSED.items()}},
+                **{v: k for k, v in INFERRED_CATEGORY.items()}},
     date_label="发布时间",
     facets=[("职位类别", "subcategory")],
     note="只收「全职」；「技术」对应官网的「算法研究」「工程研发」，「产品」对应「产品项目方案」，"
@@ -83,13 +83,13 @@ def fetch():
         if p.get("commitment") != "全职" or out_of_scope_title(p.get("title")):
             continue
         official = (p.get("zhineng") or {}).get("name") or ""
-        category = official if official in META["categories"] else GUESSED.get(guess_category(p.get("title")), "（未分类）")
+        category = official if official in META["categories"] else INFERRED_CATEGORY.get(guess_category(p.get("title")), "（未分类）")
         duty, req = split_jd(html_text(p.get("jobDescription")))
-        years, pref = parse_years(req or duty)
+        years, pref, source = resolve_years(None, req or duty, "任职要求" if req else "职位描述")
         cities, country = location(p)
         jobs.append(make_job(
             id=p["id"], title=p.get("title"), category=category, subcategory=official if official != "其它" else "",
-            cities=cities, country=country, years=years, pref_years=pref,
+            cities=cities, country=country, years=years, pref_years=pref, years_source=source,
             date=(p.get("publishedAt") or p.get("openedAt") or p.get("createdAt") or "")[:10],
             url=f"{SITE}?locale=zh-CN#/job/{p['id']}", description=duty, requirement=req))
     print(f"[智谱] 全职 {sum(p.get('commitment') == '全职' for p in posts)} 条，转换 {len(jobs)} 条", flush=True)
