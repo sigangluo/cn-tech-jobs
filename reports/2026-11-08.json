@@ -1,0 +1,1413 @@
+{
+  "generated_at": "2026-11-08T08:19:47+00:00",
+  "jobs_generated": "2026-11-08",
+  "jobs_sha256": "92335fa649edab46ad077a0c9970c3fb19ba0671a2bbd612c96c0a0f0e57c780",
+  "method": "规则计数和按日期、公司及职位 ID 的哈希固定抽样；样本供人工复核，不代表已由 AI 核验。年限来源由抓取脚本记录（任职要求 / 职位描述 / 官网字段 / 未找到）；缺失任职要求只检查独立字段。",
+  "total": {
+    "jobs": 15111,
+    "category_inferred": 2730,
+    "category_inferred_rate": 0.1807,
+    "years_from_text": 8543,
+    "years_from_official_field": 1422,
+    "years_not_found": 5146,
+    "years_source_unrecorded": 0,
+    "years_unspecified": 5146,
+    "years_unspecified_rate": 0.3405,
+    "missing_city": 21,
+    "missing_city_rate": 0.0014,
+    "missing_direct_link": 77,
+    "missing_direct_link_rate": 0.0051,
+    "missing_requirement": 28,
+    "missing_requirement_rate": 0.0019
+  },
+  "companies": [
+    {
+      "key": "bytedance",
+      "name": "字节跳动",
+      "fetched_at": "2026-11-08T08:16:34+00:00",
+      "jobs": 6348,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 2882,
+      "years_from_official_field": 0,
+      "years_not_found": 3466,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 3466,
+      "years_unspecified_rate": 0.546,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "7548452957311781138",
+            "title": "AI应用高级开发工程师 - Data-抖音/直播/电商/剪映",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、5年及以上研发工作经验，本科及以上学历，计算机相关专业，具有LLM工程化相关研发经验；\n2、具备扎实的后台研发能力，熟练掌握Golang/Java/Python/C++中任一编程语言，熟悉常见大模型服务化与检索组件（如MySQL/ES/向量数据库/Faiss等）；\n3、具备良好的设计能力、沟通能力、团队协作能力及项目掌控能力，有较强的责任心，追求极致；\n"
+          },
+          {
+            "id": "7138717653216364830",
+            "title": "高级数据产品经理 - BI",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、3年以上数据产品设计经验，统计、数学、计算机相关专业优先，从事过数据开发工作者优先；\n2、熟悉业内的BI和大数据开发治理产品，如Tableau、PowerBI、Dataleap等；\n3、熟悉数据仓库、数据开发、数据治理，了解相关的解决方案和方法论；\n4、熟练掌握互联网产品设计相关软件，如Sketch，Axure，Visio等；\n5、熟练使用SQL及其他分"
+          },
+          {
+            "id": "7647042174594926853",
+            "title": "用户增长策略产品经理 - 抖音电商",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，2年及以上策略产品经验，有用户增长、推荐、广告等策略领域的相关经验优先，有数学、统计学、经济学、计算机等相关专业背景优先；\n2、有较强的业务分析洞察能力，善于从数据分析中发现问题并制定策略，熟练使用AB实验机制验证策略；\n3、了解互联网产品的用户增长方法，有电商用户同理心，对前沿的电商增长模式发展有自我理解，能保持创新和演变思考；\n4、目"
+          },
+          {
+            "id": "7539816205835946248",
+            "title": "互动策略产品经理-红果短剧",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，2年以上策略/用户产品经理工作经验，内容/视频类产品深度用户；\n2、具备一定的AI技术理解或实践经验，能运用AI能力提升业务目标；\n3、具备良好的跨团队协作能力、快速的学习能力，能在快速发展中找到业务突破口。"
+          },
+          {
+            "id": "7290454275036809509",
+            "title": "视觉算法工程师-视频架构",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、硕士及以上学历，3年以上工作经验；\n2、在Diffusion Model、GAN、VAE、图像及视频生成/编辑、多模态内容理解等至少一个领域有开发经验的优先；\n3、有较强的研究能力，在顶级会议上如CVPR/ICCV/ECCV/ACL/EMNLP/NIPS/ICML/ICLR等发表论文者优先；\n加分项：\n1、有LoRA等PEFT技术的应用与实操相关经验；\n"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 6348,
+      "alerts": [
+        "55% 的职位没识别出工作年限"
+      ]
+    },
+    {
+      "key": "tencent",
+      "name": "腾讯",
+      "fetched_at": "2026-11-08T08:18:50+00:00",
+      "jobs": 1439,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 892,
+      "years_from_official_field": 414,
+      "years_not_found": 133,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 133,
+      "years_unspecified_rate": 0.0924,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "2077641169805950976",
+            "title": "腾讯云-SaaS渠道生态赋能架构师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.本科以上学历，5年以上IT/云计算相关工作经验；\r\n2.有SaaS渠道支持，生态赋能相关工作经验，了解渠道生态职责及打法者优先；\r\n3.通过腾讯云技术认证或同等资格认证的优先录取；\r\n4.优良的沟通能力及客户服务意识，严谨的工作态度和强烈的责任心。\n【加分项】\n1.在同等条件下，通过腾讯云认证或取得同等资格认证的候选人，优先考虑。"
+          },
+          {
+            "id": "2088167588004806656",
+            "title": "腾讯云-国际站增长运营经理",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.3年以上公有云、SaaS或AI类产品出海经验，有海外增长实操案例；\r\n2.对海外开发者生态有深入理解，具备拓展和维系本地核心技术群体、AI应用群体的能力，能主动融入当地技术圈层并建立长期信任关系；\r\n3.熟悉1-2个核心海外市场的用户增长know-how，了解当地开发者生态和获客渠道；\r\n4.有开发者社区运营或KOC合作经验，可验证案例；\r\n5.数据敏感"
+          },
+          {
+            "id": "2074396169051746304",
+            "title": "大数据平台后台开发工程师/技术专家(深圳/北京）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.计算机或相关专业本科及以上学历，3年以上大数据平台开发经验，熟悉 Linux / Unix 开发环境；\r\n2.精通java，熟悉Python/Go至少一门语言。精通Spring Boot、Redis、MQ等框架和中间件，深刻理解JVM调优、分布式系统原理、多线程与高并发技术，并能在大数据平台组件开发、性能调优等场景中熟练应用；\r\n3.深入理解Hadoop"
+          },
+          {
+            "id": "2101697725291741184",
+            "title": "腾讯健康-医疗行业售前架构师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.本科及以上学历，具有5年以上行业解决方案或系统架构设计从业经历，熟悉IT架构规划、系统集成和项目实施；\n2.熟悉医疗健康企业的业务架构，擅长分析客户业务需求，整合产品输出解决方案；\n3.熟悉云计算技术和产品，包括但不限于网络、服务器、存储、容器、微服务、中间件、数据库、大数据和AI等，可以在不同层面设计云服务架构，能提供IaaS/SaaS/PaaS/不同"
+          },
+          {
+            "id": "2033448339554598912",
+            "title": "《三角洲行动》-安全宣发运营",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.本科及以上学历，3年及以上游戏产品宣发、官号运营等领域工作经验；\r\n2.对产品安全、反作弊、多玩法FPS游戏安全有系统性理解和实践经验；\r\n3.具备良好的资源协调和沟通能力，有跨部门密切配合的经验意识，能有效协调多方资源推动落地。"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": -1,
+      "jobs_previous": 1440,
+      "alerts": []
+    },
+    {
+      "key": "ant",
+      "name": "蚂蚁集团",
+      "fetched_at": "2026-11-08T08:19:46+00:00",
+      "jobs": 605,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 373,
+      "years_from_official_field": 230,
+      "years_not_found": 2,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 2,
+      "years_unspecified_rate": 0.0033,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "260908011960948",
+            "title": "蚂蚁集团-数据 Agent 架构师-杭州",
+            "years": "8年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、大学本科及以上学历，计算机、AI 相关专业\n2、8年以上 AI/大数据领域架构经验，2 年以上 Agent/多智能体系统经验\n3、精通 Agent 核心机制（任务规划、记忆管理、工具调用、多 Agent 协作），熟悉主流框架（LangChain/LangGraph/AutoGen 等）\n4、扎实的 AI 技术积累：LLM 微调与推理优化、RAG、Prom"
+          },
+          {
+            "id": "260526010177937",
+            "title": "蚂蚁国际-客服 AI 产品专家（FDE）-国际产品",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.\t本科及以上学历，5 年以上客服业务或产品经验，有独立操盘客服业务线/团队/项目的实战经验——制定过业务目标、调配过资源、背过核心指标并拿到过结果；互联网/金融大厂客服业务背景优先。\n\t2.\t3 年以上客服平台相关产品经验（智能客服/对话机器人、坐席辅助工作台、智能质检、知识库、工单系统、全渠道客服平台等），有完整的从需求规划到上线交付的产品闭环经验；A"
+          },
+          {
+            "id": "260721010977409",
+            "title": "蚂蚁集团-AI infra工程师-杭州",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 具备 2 年及以上 AI 系统、任务调度或高性能并行计算相关领域的研发经验，拥有良好的工程实践能力。\n2. 熟悉 Transformer、MoE 等大模型架构，以及分布式训推与调度、大模型 Agent 系统或高性能软硬件架构中的至少一个方向。\n3. 熟悉 SGLang、vLLM、Megatron-LM 等训推框架，或具备大规模模型训练、推理性能优化及 "
+          },
+          {
+            "id": "25122208090644",
+            "title": "蚂蚁集团-非结构化数据挖掘工程师-具身智能方向",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 学历与工作经验：计算机科学、人工智能、统计学或相关领域硕士及以上学历，3年以上数据挖掘相关工作经验；智驾数据挖掘相关经验者优先，有具身智能领域数据挖掘经验者优先。\n2. 核心技能：具备丰富的非结构化数据处理实操经验，熟练处理视频数据、深度数据、轨迹数据；深刻理解多模态表征学习理念，熟练使用常见聚类算法；精通数据清洗、过滤流程，具备关键帧/关键片段挖掘、"
+          },
+          {
+            "id": "261019012478432",
+            "title": "蚂蚁国际-AI 产品经理（信贷风险方向）-科技金融",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 信贷风控经验：具有2年以上信贷业务或风控领域产品（含风险或催收）经验，熟悉信贷全生命周期风控流程（准入、授信、贷中、贷后），对风险决策引擎、特征工程、风控策略等有实际理解。\n2. 产品基本功扎实：具备独立负责一个产品模块从0到1或从1到N的经验，能独立完成需求分析、方案设计、PRD撰写与项目推进，对产品体验和数据有敏感度。\n3. 自我驱动与执行力：具备"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 605,
+      "alerts": []
+    },
+    {
+      "key": "didi",
+      "name": "滴滴",
+      "fetched_at": "2026-11-08T08:12:48+00:00",
+      "jobs": 486,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 378,
+      "years_from_official_field": 0,
+      "years_not_found": 108,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 108,
+      "years_unspecified_rate": 0.2222,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "61756",
+            "title": "智能硬件负责人",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 教育背景\n本科及以上学历，计算机科学与技术、电子工程、自动化、智能硬件相关专业，硕士及以上学历优先，5年以上智能硬件研发经验，3年以上团队管理经验。\n2. 核心技能\n- 精通智能硬件研发全流程，熟练掌握芯片选型、传感器集成、嵌入式系统开发、结构设计等核心技术，具备高端智能硬件产品架构设计能力；\n- 从0-1主导过一款智能硬件产品研发工作，并实现大规模量"
+          },
+          {
+            "id": "65627",
+            "title": "数据研发专家",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、计算机或相关专业本科及以上学历，具备5年以上互联网数仓建设工作经验;\n2、具备数仓架构规划和体系化搭建能力，能够结合业务目标和数据特点制定中长期数据建设规划；\n3、具备数据治理系统化建设能力，能够基于数据现状制定治理目标并提供可落地解决方案；\n4、保持对技术的好奇心，持续关注新技术的发展，能够参与部门新技术架构的规划及落地；\n5、具备Data AI建设能"
+          },
+          {
+            "id": "67067",
+            "title": "金融账号产品专家",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.\t本科及以上学历，5年以上平台类产品设计经验，有账号管理类，账号安全类，KYC类产品设计经验者优先，有金融行业（支付，信贷等）产品C端体验设计经验者优先；\n2.\t具备优秀的表达能力和协同能力，灵活协调资源，合作共赢，推动关键事项落地；\n3.\t对数据有敏感度，具备一定的数据分析能力，且能将分析思路和方法输出；\n4.\t英语可作为工作语言，能够对接海外团队需求"
+          },
+          {
+            "id": "66783",
+            "title": "高级/资深网关研发工程师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历优先，计算机相关专业，5 年以上七层负载均衡 / 云原生网关架构研发、性能优化实战经验；\n\n2. 精通 TCP/IP、HTTP 协议，具备扎实 Socket 网络编程能力；\n\n3. 熟练使用 C/C++/Go 其一，擅长底层开发、性能调优与线上问题排查；\n\n4. 逻辑思维清晰，具备优秀的方案落地能力与跨团队协同推进能力；\n\n5. 抗压能力"
+          },
+          {
+            "id": "66917",
+            "title": "搜索算法工程师",
+            "years": "1年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、具有扎实的计算机和数学基础，熟练掌握基本的数据结构和算法优化技能\n2、熟悉一种或多种编程语言，包括但不限于python/shell/Go/C++等，具备良好的工程素养\n3、熟悉机器学习基础知识，能熟练利用机器学习/深度学习技术独立解决相对复杂的业务问题\n4、对数据敏感，具备业务分析能力，有搜索/推荐/广告/大模型相关等领域算法经验优先\n5、本科以上学历，"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": -61,
+      "jobs_previous": 547,
+      "alerts": []
+    },
+    {
+      "key": "meituan",
+      "name": "美团",
+      "fetched_at": "2026-11-08T08:13:36+00:00",
+      "jobs": 611,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 430,
+      "years_from_official_field": 0,
+      "years_not_found": 181,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 181,
+      "years_unspecified_rate": 0.2962,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "4413741939",
+            "title": "AI产品增长产品经理",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.本科及以上学历，计算机、人工智能、数据科学等相关专业优先，5年以上产品经验，其中至少2年专注于AI/数据产品领域。\n2.熟悉常见的AI技术栈（如推荐系统、NLP、CV等），具备与算法团队高效协作的能力，能准确将业务需求转化为技术方案。\n3.具备出色的数据分析能力，熟练使用SQL、Python等工具进行数据探查与建模，能通过数据驱动产品决策与优化。\n4.拥"
+          },
+          {
+            "id": "4901046437",
+            "title": "Java 后端开发工程师（治理平台 / AI 应用方向）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，计算机相关专业，3 年以上 Java 开发工作经验；\n\n2、具有扎实的计算机知识、数据结构与算法基础，具备较强的编程能力和问题解决能力；\n\n3、熟悉 Java 技术体系，对设计模式、JVM、多线程及消息队列、缓存等技术有较好的理解，具备较好的服务端系统开发和线上问题排查能力；\n\n4、沟通交流顺畅，逻辑清晰，有较好的团队合作精神，有跨团队协"
+          },
+          {
+            "id": "4402381775",
+            "title": "机器学习资源调度系统工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 计算机基础扎实，熟练掌握Go、Python或Java至少一种编程语言。  \n2. 3年以上软件开发或系统架构经验，有大规模集群管理经验者优先。  \n3. 熟悉Kubernetes、Containerd、Docker等云原生核心技术栈和云原生开发模式。  \n4. 具备良好的系统设计与问题排查能力，有机器学习平台开发经验者优先。"
+          },
+          {
+            "id": "4520071973",
+            "title": "无人机-毫米波雷达感知AI技术研究员",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、精通毫米波雷达数据处理及深度学习模型；\n2、熟悉PyTorch/TensorFlow，具备嵌入式部署经验；\n3、3年以上雷达感知或自动驾驶/无人机相关算法研发经验。\n4、场景理解：能从无人机业务需求（如物流避障、低空导航）出发，设计高可靠性的感知解决方案。\n5、工程素养：熟悉算法量产流程（数据采集、标注、模型迭代），具备跨团队沟通能力。\n6、具备主动学习"
+          },
+          {
+            "id": "4735979665",
+            "title": "无人机气动工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 流体力学、空气动力学、飞行器设计、航空工程等相关专业，硕士及以上学历，具备3年以上空气旋翼或多旋翼、直升机等飞行器设计研发经验；\n2. 对小尺寸低速旋翼或整机相关的空气动力学原理、设计方法与技术方案有体系化的深入理解和丰富的工程落地经验，能独立判断技术路线；\n3. 精通旋翼动力学与结构力学，熟悉旋翼组件的结构设计和成型工艺，能够平衡气动性能与结构、工艺"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 611,
+      "alerts": []
+    },
+    {
+      "key": "netease",
+      "name": "网易",
+      "fetched_at": "2026-11-08T08:13:35+00:00",
+      "jobs": 511,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 361,
+      "years_from_official_field": 90,
+      "years_not_found": 60,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 60,
+      "years_unspecified_rate": 0.1174,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "27410",
+            "title": "服务器开发工程师",
+            "years": "3年",
+            "source": "任职要求",
+            "source_excerpt": "1.三年或以上的游戏服务器研发经验，对游戏研发相关技术有系统的掌握并保持学习和关注；\n2. 要求熟悉C++编程；另外熟悉Python语言者优先\n3. 思维敏捷，责任心强，有较高的自我管理和任务跟进推动能力，具备独立研究并解决技术问题的能力；\n4 善于沟通，有良好的团队合作精神"
+          },
+          {
+            "id": "79627",
+            "title": "全栈开发工程师（偏ios）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历，3 年以上 iOS 开发经验，熟练掌握 Objective-C，熟悉 iOS 系统机制与常用框架；\n2. **具备扎实的客户端架构能力**，能独立设计和落地可扩展、可维护的客户端架构，有从 0 到 1 搭建或主导大型项目架构经验者优先；\n3. **具备较强的重构能力**，善于识别历史债务并系统性优化，能在保证业务稳定的前提下推进架构升级"
+          },
+          {
+            "id": "56888",
+            "title": "UE5工具程序员",
+            "years": "4年以上",
+            "source": "任职要求",
+            "source_excerpt": "职位要求:\n•\t4年以上游戏引擎或工具方面的开发经验。\n•\t精通C++编程\n•\t熟悉UE4/UE5引擎\n•\t掌握C# 或Python其中一门编程语言\n•\t有版本控制与持续化集成经验者优先\n•\t参与过动画编辑器、音频开发、Timeline等工具开发优先\n其它要求\n•\t良好的沟通能力与团队合作精神。\n•\t一定的GUI设计技能。\n•\t热爱单机游戏"
+          },
+          {
+            "id": "78445",
+            "title": "高级硬件工程师",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "1、专业背景：电子/通信/自动化/测控等相关专业本科及以上，3~5 年硬件开发经验，有工程机械、汽车电子，AGV背景者优先。\n2、EDA：精通 Altium Designer / Cadence / LCEDA，有 4 层板及以上量产交付经验。\n3、核心电路：深入理解分立器件（MOSFET/三极管）、电源电路（DC-DC/LDO）、通信总线（I2C/SPI/"
+          },
+          {
+            "id": "77538",
+            "title": "资深产品策划（AI云协作）",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，2年以上AI产品经验，计算机、人工智能等相关专业背景优先。具备协作办公、SaaS或相关领域产品完整落地经验，主导过智能助手、AI中台或复杂AI功能模块建设者优先。； \n2、熟练应用各类AI工具，熟悉AI相关技术框架及落地路径；\n3、逻辑清晰、结构化思维强，对数据敏感，沟通能力强，有好的抗压和多线程事务处理的能力； \n4、强烈的责任心和主o"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 511,
+      "alerts": []
+    },
+    {
+      "key": "xiaohongshu",
+      "name": "小红书",
+      "fetched_at": "2026-11-08T08:13:16+00:00",
+      "jobs": 512,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 299,
+      "years_from_official_field": 0,
+      "years_not_found": 213,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 213,
+      "years_unspecified_rate": 0.416,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "21667",
+            "title": "「商业产品」交易平台产品",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "任职资格\n1、本科及以上学历，理工科专业优先，2年及以上的商业化策略产品相关经验；\n2、熟悉数字广告生态、竞价广告投放机制、程序化广告投放、联盟投放的同学优先，有相关产品经验（DMP/建模/RTA/DPA等）优先；\n3、有研发和数据分析背景优先，能够使用SQL语言等数据提取工具，具备较强的数据敏感度和分析能力；\n4、拥有强烈的责任心和团队合作精神，具备出色的"
+          },
+          {
+            "id": "21375",
+            "title": "AI Agent开发工程师（Agent方向）",
+            "years": "3年",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，计算机、软件工程、人工智能等相关专业，具备约3年后端或 AI 应用研发经验。\n2、熟练掌握 Java、Python、Go 中至少一种编程语言，具备良好的数据结构、网络、并发编程及后端工程基础。\n3、熟悉 LLM 应用开发范式，理解 Prompt Engineering、RAG、Embedding、Tool/Function Calling"
+          },
+          {
+            "id": "18664",
+            "title": "直播流媒体Java开发工程师-多媒体技术",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "1.计算机相关专业本科及以上学历，3-5年 Java 后端开发经验；\n2.熟悉 Java 语言及常用框架（Spring Boot / Spring Cloud 等），具备扎实的编程功底；\n3.熟悉 分布式系统设计，具备高并发、高可用架构经验；\n4.熟悉 数据库与缓存技术（MySQL、Redis、Kafka 等），具备良好的数据建模与优化能力；\n5.有音视频行"
+          },
+          {
+            "id": "16724",
+            "title": "AI全栈工程师（PE）-社区鸿蒙方向",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、3 年以上开发经验，至少精通一个技术领域（客户端领域优先，前端也可）；\n2、熟练使用 AI 编程工具（Cursor、Claude Code、GitHub Copilot 等），有用AI突破自身不熟悉领域的实际经验；\n3、扎实的 Harness Engineering 能力，掌握CoT、Loop Engine、结构化输出等技巧；\n4、深入理解 Functi"
+          },
+          {
+            "id": "22613",
+            "title": "云安全工程师",
+            "years": "1-3年",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历，计算机、信息安全等相关专业优先。\n2. 具备 1～3 年云安全 / 网络安全 / 系统安全相关经验；有云安全风险治理、网络安全架构评估或 WAF、DDoS 等安全运营经验者优先。\n3. 了解至少一种主流公有云平台（阿里云 / 腾讯云 / AWS / GCP 等），对 VPC、IAM、云主机、安全组、ACL 等常见云产品的基本安全机制有初"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 512,
+      "alerts": []
+    },
+    {
+      "key": "jd",
+      "name": "京东",
+      "fetched_at": "2026-11-08T08:13:38+00:00",
+      "jobs": 385,
+      "category_inferred": 76,
+      "category_inferred_rate": 0.1974,
+      "years_from_text": 88,
+      "years_from_official_field": 0,
+      "years_not_found": 297,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 297,
+      "years_unspecified_rate": 0.7714,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "179834",
+            "title": "产品经理",
+            "category": "产品",
+            "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=179834"
+          },
+          {
+            "id": "178355",
+            "title": "产品经理",
+            "category": "产品",
+            "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=178355"
+          },
+          {
+            "id": "171608",
+            "title": "产品规划岗（产品定价策略）",
+            "category": "产品",
+            "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=171608"
+          },
+          {
+            "id": "177393",
+            "title": "服务产品经理",
+            "category": "产品",
+            "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=177393"
+          },
+          {
+            "id": "181083",
+            "title": "产品规划",
+            "category": "产品",
+            "url": "https://zhaopin.jd.com/web/job-info-detail?requementId=181083"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "166816",
+            "title": "体验数据分析",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "任职资格：\n1.学历要求：本科及以上学历，统计分析、计算机等相关经验优先；\n2.工作经验：具备3-5年电商行业经验，有商业分析、经营分析、体验分析、用户研究等相关岗位背景，熟悉行业流程及用户需求；\n3.能力要求：\n业务分析能力：具备较强的数据分析能力，能够通过数据洞察用户行为，发现并解决问题；具备较强的行业洞察力与业务理解能力，能够基于复杂数据构建分析模型，"
+          },
+          {
+            "id": "164912",
+            "title": "Java软件交付工程师",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，2年以上医疗软件开发经验，计算机等相关专业优先；\n2、熟悉和掌握Java、各种MySQL、SQLServer、Oracle等常用数据库；\n3、沟通能力强、学习能力强、抗压能力强；\n4、工作主动性强，耐心细致，有责任心，具备团队合作精神；\n\n符合京东价值观：客户为先、创新、拼搏、担当、感恩、诚信。"
+          },
+          {
+            "id": "171608",
+            "title": "产品规划岗（产品定价策略）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "任职要求\n1、本科及以上学历，经济学、统计学、数学、运筹学、计算机、物流管理、工商管理等相关专业优先。\n2、具备 3 年及以上定价策略、商业分析、经营分析、策略运营、物流/配送运营、产品策略等相关经验。\n3、熟悉即时配送、同城配送、外卖、即时零售、网约车、物流供应链等行业者优先。\n4、具备较强的数据分析能力，能够使用 SQL、Excel、Python、BI "
+          },
+          {
+            "id": "173771",
+            "title": "软件开发工程师",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "1、工作经验：3-5年软件开发相关工作经验，具备后端开发项目经验者优先；\n2. 能力要求：\n技术能力：熟练掌握Java、Python等至少一种后端开发语言；熟悉常用数据库如MySQL、Oracle等；具备良好的代码编写习惯，能够编写高质量、高效率的代码；对微服务架构、分布式系统有深入理解和实践经验；\n业务理解：具备良好的业务理解能力，能够快速把握业务需求，转"
+          },
+          {
+            "id": "168030",
+            "title": "软件技术开发岗",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "1、教育背景\n学历要求：本科及以上学历，计算机科学、软件工程等相关专业；\n2、工作经验\n工作经验：具备3-5年软件开发相关工作经验，熟悉后端开发，有大型电商平台或物流系统开发经验者优先；\n3、能力要求：\n技术能力：熟练掌握Java、Python等编程语言，熟悉Spring、MyBatis等主流框架；具备良好的代码编写习惯，能够编写高质量、高效率的代码；熟悉数"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": -8,
+      "jobs_previous": 393,
+      "alerts": [
+        "77% 的职位没识别出工作年限"
+      ]
+    },
+    {
+      "key": "alibaba",
+      "name": "阿里巴巴",
+      "fetched_at": "2026-11-08T08:17:04+00:00",
+      "jobs": 1701,
+      "category_inferred": 662,
+      "category_inferred_rate": 0.3892,
+      "years_from_text": 1091,
+      "years_from_official_field": 609,
+      "years_not_found": 1,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 1,
+      "years_unspecified_rate": 0.0006,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 77,
+      "missing_direct_link_rate": 0.0453,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "100014403005",
+            "title": "阿里云智能-AI原生数据库产品经理-北京/杭州",
+            "category": "产品",
+            "url": "https://careers.aliyun.com/off-campus/position-detail?positionId=100014403005"
+          },
+          {
+            "id": "100007600006",
+            "title": "高德-具身智能硬件产品经理-具身业务部",
+            "category": "产品",
+            "url": "https://talent.amap.com/off-campus/position-detail?positionId=100007600006"
+          },
+          {
+            "id": "100014040009",
+            "title": "智能引擎-多模态/世界模型基础架构研发高级专家-AI Infra",
+            "category": "技术",
+            "url": "https://talent-holding.alibaba.com/off-campus/position-detail?positionId=100014040009"
+          },
+          {
+            "id": "100039940003",
+            "title": "千问事业部-端侧语音交互算法专家-杭州",
+            "category": "技术",
+            "url": "https://talent.quark.cn/off-campus/position-detail?positionId=100039940003"
+          },
+          {
+            "id": "100021600005",
+            "title": "千问事业部-大模型压缩&推理加速技术专家/高级专家-杭州/北京/广州",
+            "category": "技术",
+            "url": "https://talent.quark.cn/off-campus/position-detail?positionId=100021600005"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "100014403005",
+            "title": "阿里云智能-AI原生数据库产品经理-北京/杭州",
+            "years": "3-5年",
+            "source": "任职要求",
+            "source_excerpt": "● 3-5年产品与项目管理经验，有数据库、云计算或企业级B端产品背景；有Agent相关产品经验者优先；\n● 具备较强的项目管理能力，能独立推进中型项目落地，熟悉敏捷开发流程逻辑清晰、沟通能力强，具备跨团队协作和复杂问题拆解能力；\n● 对云计算产品（AWS、Azure或GCP）和云原生技术如K8s、容器等技术有深入的理解；\n● 了解主流国产芯片/操作系统/中间"
+          },
+          {
+            "id": "100007600006",
+            "title": "高德-具身智能硬件产品经理-具身业务部",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，电子工程、机械工程、自动化、计算机等相关专业。5年以上消费电子或机器人领域的硬件产品经理经验，至少主导过2款以上硬件产品从0到1的全流程开发并成功实现规模量产；\n2、了解硬件开发的关键环节，熟悉产品开发流程；拥有丰富的量产经验，熟悉硬件产品的生产、测试、售后流程；\n3、卓越的用户洞察、市场分析、逻辑思维和数据驱动决策能力。良好的信息收集、"
+          },
+          {
+            "id": "100049520001",
+            "title": "达摩院-高速模拟电芯片专家-先进互联",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 经验：5 年以上高速模拟 IC 设计经验，至少 2 年以上 driver和TIA 或高速接收设计经验\n2. 工艺：熟练掌握 SiGe BiCMOS 工艺（fT > 300 GHz），了解 InP HBT、先进 CMOS 工艺\n3. 工具：精通 Cadence Virtuoso、Spectre 仿真、Calibre 物理验证，熟悉 ADS、HFSS 等工"
+          },
+          {
+            "id": "100021460002",
+            "title": "千问事业部-NLP算法专家-杭州/上海",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、计算机、数学、统计学相关专业，硕士及以上学历；\n2、3年及以上NLP算法经验，有多语言语音助手和语音助手出海项目经验更佳；\n3、熟悉NLP领域前沿技术，有LLM对话系统建设相关经验，对qwen、gemini等文本、视觉、全模态模型较为熟悉；\n4、具备优秀的理解力与执行力，具备良好的沟通协作能力；保持自我学习提升，保持对事物的好奇心；\n5、良好的算法工程化"
+          },
+          {
+            "id": "100016983004",
+            "title": "阿里云智能-服务器AI互连技术开发专家-北京/上海",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "● 计算机、软件工程、通信工程、电子科学与技术、人工智能等相关专业。\n● 5年以上GPU软件、网络软件或基础设施研发经验，精通C/C++，熟悉Python或Go。\n● 有GPU算子优化、框架优化、通信库优化、KV缓存系统设计、RDMA等经验之一。\n● 能够独立承担复杂子系统设计、问题定位、性能优化及工程交付。\n● 有强烈的技术热情和好奇心、自驱力和学习力。\n"
+          }
+        ],
+        "missing_direct_link": [
+          {
+            "id": "100048340002",
+            "title": "飞猪-行业产品专家-国际酒店"
+          },
+          {
+            "id": "6000065037",
+            "title": "盒马-测试开发工程师-杭州"
+          },
+          {
+            "id": "100015863002",
+            "title": "ATH事业群-AI Agent全栈工程师-商业增长-北京/杭州"
+          },
+          {
+            "id": "100002846037",
+            "title": "菜鸟-AI产品经理（菜鸟APP）-杭州"
+          },
+          {
+            "id": "100050840001",
+            "title": "飞猪-Java研发工程师-全球化机票交易-杭州"
+          }
+        ]
+      },
+      "jobs_change": -9,
+      "jobs_previous": 1710,
+      "alerts": []
+    },
+    {
+      "key": "bilibili",
+      "name": "哔哩哔哩",
+      "fetched_at": "2026-11-08T08:12:46+00:00",
+      "jobs": 153,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 117,
+      "years_from_official_field": 0,
+      "years_not_found": 36,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 36,
+      "years_unspecified_rate": 0.2353,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "28302",
+            "title": "资深策略产品（社区治理/内容安全）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "工作要求:\n1.本科及以上学历，理工科优先，3年以上内容安全、社区治理相关经验，视频/直播社区机审策略经验优先；\n2.精通内容安全全风险场景，熟悉视频、直播、弹幕等多形态内容的风险特征，了解机审系统、规则引擎的工作逻辑；\n3.具备极强数据分析能力，熟练SQL，可独立完成机审策略效果分析、AB实验设计，有Python数据分析能力者优先；\n4.了解多模态算法基础"
+          },
+          {
+            "id": "30050",
+            "title": "服务端开发工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "工作要求:\n【岗位要求】\n1. 计算机相关专业本科及以上学历，3年及以上服务端研发经验，熟练掌握 Go 或 Java，必要时需具备转向 Go 开发的意愿和学习能力。\n2. 计算机基础扎实，熟悉数据结构与算法、操作系统、计算机网络、数据库原理及常见设计模式。\n3. 熟悉 MySQL、Redis及消息队列，掌握数据模型与索引设计、SQL 优化和缓存策略等技术。\n"
+          },
+          {
+            "id": "28742",
+            "title": "资深策略产品（国际化生态治理方向）",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "工作要求:\n任职要求\n1. 5年及以上产品经理经验，具备大型社区、社交平台或出海业务的社区治理及风控相关工作经验。\n2. 熟悉国际化市场的内容合规及隐私政策，对全球各区域的内容社区问题有敏锐的感知力。\n3. 能够处理复杂的策略逻辑，并有能力将业务场景转化为明确的优化需求，推动跨职能部门的技术协同。\n4. 具备英语沟通能力，能够进行国际化的办公交流，具备极强的"
+          },
+          {
+            "id": "21556",
+            "title": "资深推荐算法工程师（直播方向）",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "工作要求:\n1.计算机相关专业本科及以上学历，5年以上互联网公司机器学习算法研发工作经验，有搜索/推荐/广告等相关系统经验者优先；\n2.深入理解常见机器学习/深度学习算法，对推荐系统中召回模型，以及CTR/CVR预估相关的深度学习模型有相关优化经验者优先；\n3.具有扎实的技术功底，优秀的解决问题能力，较强的团队管理和协作能力；\n4.良好的业务理解与敏锐的业务"
+          },
+          {
+            "id": "28596",
+            "title": "高级/资深搜索算法工程师-精排方向",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "工作要求:\n1. 扎实的机器学习、深度学习理论基础，熟悉前沿的排序模型架构\n2. 优秀的编程能力，精通Python或C++，熟悉PyTorch/TensorFlow等深度学习框架\n3. 熟悉大数据处理技术栈（Spark、Hive、Flink等），具备大规模数据处理和模型训练能力\n4. 2年以上推荐/搜索/广告精排相关工作经验，对排序模型有深入理解和实战经验\n"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 153,
+      "alerts": []
+    },
+    {
+      "key": "xiaomi",
+      "name": "小米",
+      "fetched_at": "2026-11-08T08:14:34+00:00",
+      "jobs": 870,
+      "category_inferred": 870,
+      "category_inferred_rate": 1.0,
+      "years_from_text": 615,
+      "years_from_official_field": 0,
+      "years_not_found": 255,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 255,
+      "years_unspecified_rate": 0.2931,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 1,
+      "missing_requirement_rate": 0.0011,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "7678231343865006345",
+            "title": "高级软件项目经理",
+            "category": "技术",
+            "url": "https://xiaomi.jobs.f.mioffice.cn/index/position/7678231343865006345/detail"
+          },
+          {
+            "id": "7199454775069605996",
+            "title": "新业务部-软件架构师",
+            "category": "技术",
+            "url": "https://xiaomi.jobs.f.mioffice.cn/index/position/7199454775069605996/detail"
+          },
+          {
+            "id": "7665907756074912054",
+            "title": "小米汽车-电机机械设计工程师",
+            "category": "技术",
+            "url": "https://xiaomi.jobs.f.mioffice.cn/index/position/7665907756074912054/detail"
+          },
+          {
+            "id": "7595474834051336489",
+            "title": "JAVA技术专家",
+            "category": "技术",
+            "url": "https://xiaomi.jobs.f.mioffice.cn/index/position/7595474834051336489/detail"
+          },
+          {
+            "id": "7673436255754062126",
+            "title": "C++开发工程师",
+            "category": "技术",
+            "url": "https://xiaomi.jobs.f.mioffice.cn/index/position/7673436255754062126/detail"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "7678231343865006345",
+            "title": "高级软件项目经理",
+            "years": "2-5年",
+            "source": "任职要求",
+            "source_excerpt": "1. 计算机/软件工程/通信工程/物联网相关专业本科及以上学历；\n2. 精通软件项目管理方法，APP/SDK/智能硬件相关领域2到5年经验；\n3. PMP、ACP持证者优先；\n4. 有AI智能硬件开发/软件项目管理经验者优先；"
+          },
+          {
+            "id": "7199454775069605996",
+            "title": "新业务部-软件架构师",
+            "years": "10年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 硕士及以上学历，计算机/软件工程/通信电子等相关专业；\n2. 10年以上软件开发经历，含5年以上系统分析和架构设计经验；\n3. 精通系统架构设计和软件开发模式；\n4. 精通大型SOC解决方案架构设计(移动计算或车载娱乐优先)；\n5. 熟悉ARM指令集，精通Android/Linux内核/驱动/Framework；\n6. 有安全领域密码学经验或低功耗智能"
+          },
+          {
+            "id": "7665907756074912054",
+            "title": "小米汽车-电机机械设计工程师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "岗位要求：\n1.    机械制造及自动化、车辆工程、电机等专业硕士及以上学历；5年以上国内外大型零部件企业驱动电机机械开发工作经验；\n2.     具有较强的机械设计和计算能力，熟悉金属件和塑料件的设计方法和加工工艺，具备扁线电机、油冷电机、高速电机开发经验者优先；\n3.    熟练使用UG，Catia，MS office等软件；\n4.     勤奋踏实，良"
+          },
+          {
+            "id": "7595474834051336489",
+            "title": "JAVA技术专家",
+            "years": "6年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 6年以上工作经验\n2. 具备良好的计算机专业知识；具备良好的Java基础，掌握熟练多线程，IO，网络编程等基础知识。\n3. 掌握常用的数据结构、算法和设计模式，具备良好的编程习惯；\n4. 掌握MySQL、Redis、MQ等技术框架底层原理，熟练应用日常开发与问题诊断；\n5. 具备分布式、高并发、高可用性等系统设计能力，具备大型应用系统开发经验；\n6. "
+          },
+          {
+            "id": "7678245239979084095",
+            "title": "高级产品经理",
+            "years": "5-10年",
+            "source": "任职要求",
+            "source_excerpt": "- 5-10年产品经理工作经验，具备手机行业相关工作经验，有OS规划经验优先；\n- 本科及以上学历，计算机专业优先，海外背景优先\n- 极强的跨部门沟通能力与推动力\n- 极致用户思维但不失数据理性"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 870,
+      "alerts": [
+        "100% 的职位类别靠职位名推断"
+      ]
+    },
+    {
+      "key": "zhipu",
+      "name": "智谱",
+      "fetched_at": "2026-11-08T08:12:27+00:00",
+      "jobs": 54,
+      "category_inferred": 42,
+      "category_inferred_rate": 0.7778,
+      "years_from_text": 33,
+      "years_from_official_field": 0,
+      "years_not_found": 21,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 21,
+      "years_unspecified_rate": 0.3889,
+      "missing_city": 20,
+      "missing_city_rate": 0.3704,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 5,
+      "missing_requirement_rate": 0.0926,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "aab8dad6-f456-497f-92c6-35c2fe280937",
+            "title": "后端开发工程师（公司信息化建设）",
+            "category": "技术",
+            "url": "https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/job/aab8dad6-f456-497f-92c6-35c2fe280937"
+          },
+          {
+            "id": "c9b09c62-bcc7-4e95-a11c-b513727c40ab",
+            "title": "解决方案架构师（成都）",
+            "category": "技术",
+            "url": "https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/job/c9b09c62-bcc7-4e95-a11c-b513727c40ab"
+          },
+          {
+            "id": "a0dc5f47-1263-41da-be9a-630e7f73cbc0",
+            "title": "预训练数据算法工程师（基座模型）",
+            "category": "技术",
+            "url": "https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/job/a0dc5f47-1263-41da-be9a-630e7f73cbc0"
+          },
+          {
+            "id": "83bf3051-65c2-4880-8db6-b8d1c77dce3b",
+            "title": "GLM-Image算法研究员/工程师",
+            "category": "技术",
+            "url": "https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/job/83bf3051-65c2-4880-8db6-b8d1c77dce3b"
+          },
+          {
+            "id": "eb6e44ae-8d5e-4122-965d-b72f3922d08c",
+            "title": "GLM Coding Agent 数据与自动化迭代体系专家 / 工程师",
+            "category": "技术",
+            "url": "https://app.mokahr.com/social-recruitment/zphz/148983?locale=zh-CN#/job/eb6e44ae-8d5e-4122-965d-b72f3922d08c"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "c9b09c62-bcc7-4e95-a11c-b513727c40ab",
+            "title": "解决方案架构师（成都）",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，计算机、软件工程、大数据等相关专业优先；\n2、5 年以上 AI 解决方案、售前或技术支持相关经验，有 B2B 企业级服务经验者优先；\n3、深入了解国内外前沿大模型与 AI Native 产品生态，技术敏感度高；\n4、熟练掌握提示词工程、Workflow 设计、Vibe Coding 等 AI 应用开发技能，具备动手验证能力；\n5、在至少一"
+          },
+          {
+            "id": "2c13d8cb-d18b-4887-96fb-d8b2b97df373",
+            "title": "SRE运维工程师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1.教育背景\n计算机、软件工程、云计算相关专业优先。\n\n2.工作经验\n-5年以上容器运维经验，主导或深度参与过万级Pod规模的集群维护。\n-熟悉生产环境容器化全生命周期管理，包括部署、监控、扩缩容、故障恢复等场景。\n-有多云环境/混合云管理经验\n-有过安全相关工作经验优先\n-头部互联网/云计算大厂优先\n\n3.技术能力\n-精通Kubernetes架构及生态工具"
+          },
+          {
+            "id": "eb6e44ae-8d5e-4122-965d-b72f3922d08c",
+            "title": "GLM Coding Agent 数据与自动化迭代体系专家 / 工程师",
+            "years": "2-5年",
+            "source": "任职要求",
+            "source_excerpt": "本科及以上学历，2-5 年大模型相关经验，做过代码大模型 /coding agent / 研发大模型数据治理或自动化评测工作优先；\n熟悉代码数据 curation、清洗去重、脱敏质检、样本结构化与版本管理；\n熟悉代码自动化评测思路，接触过SWEBench / Terminal Bench，懂代码沙箱执行、单元测试自动化评测优先；\nPython 工程能力扎实，"
+          },
+          {
+            "id": "53fcccb6-ce43-451a-aa2c-4020ef6c6c04",
+            "title": "资深前端开发工程师",
+            "years": "3年以上",
+            "source": "职位描述",
+            "source_excerpt": "1.熟悉前端框架Vue或React,能够高效实现复杂业务功能。\n2.计算机科学或相关专业的学位,3年以上Web开发经验。\n3.具备良好的UI还原能力,注重细节\n4.了解前端工程化和模块化开发,熟悉常用的前端构建工具(如Vite等)\n5.具有良好的沟通能力和团队合作精神,能够与不同岗位的同同事高效协作。\n6.对技术有强烈的热情和求知欲,能够快速学习并适应新的技"
+          },
+          {
+            "id": "f17cf6d0-dbed-47b8-968e-567e5388afab",
+            "title": "解决方案产品经理-深圳",
+            "years": "5-10年",
+            "source": "任职要求",
+            "source_excerpt": "5-10 年产品/解决方案工作经验，有完整产品从 0 到 1 落地经历\n熟悉大语言模型、多模态模型等 AI 技术的产品化应用，理解模型能力边界\n具备扎实的解决方案能力：能独立输出可研报告、建设方案、技术方案等专业文档，有 G 端/B 端项目方案编制与中标落地经验\n具备技术架构理解力：懂云原生、微服务、信创栈、算力调度，能与算法/开发团队对齐技术选型与可行性，"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 54,
+      "alerts": [
+        "37%（20 条）缺工作城市",
+        "9%（5 条）缺任职要求",
+        "78% 的职位类别靠职位名推断"
+      ]
+    },
+    {
+      "key": "minimax",
+      "name": "MiniMax",
+      "fetched_at": "2026-11-08T08:12:34+00:00",
+      "jobs": 120,
+      "category_inferred": 25,
+      "category_inferred_rate": 0.2083,
+      "years_from_text": 42,
+      "years_from_official_field": 0,
+      "years_not_found": 78,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 78,
+      "years_unspecified_rate": 0.65,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 2,
+      "missing_requirement_rate": 0.0167,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "7648850059137059115",
+            "title": "增长技术-服务端研发",
+            "category": "技术",
+            "url": "https://vrfi1sk8a0.jobs.feishu.cn/index/position/7648850059137059115/detail"
+          },
+          {
+            "id": "7699693436584495410",
+            "title": "算力平台研发工程师-资源管理与可靠性",
+            "category": "技术",
+            "url": "https://vrfi1sk8a0.jobs.feishu.cn/index/position/7699693436584495410/detail"
+          },
+          {
+            "id": "7681683833419532554",
+            "title": "大模型训练框架工程师",
+            "category": "技术",
+            "url": "https://vrfi1sk8a0.jobs.feishu.cn/index/position/7681683833419532554/detail"
+          },
+          {
+            "id": "7648847326362814761",
+            "title": "增长技术负责人",
+            "category": "技术",
+            "url": "https://vrfi1sk8a0.jobs.feishu.cn/index/position/7648847326362814761/detail"
+          },
+          {
+            "id": "7670833481375402246",
+            "title": "AI Agent 架构师 / 金融行业负责人（量化投资方向）",
+            "category": "技术",
+            "url": "https://vrfi1sk8a0.jobs.feishu.cn/index/position/7670833481375402246/detail"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "7696412591447509291",
+            "title": "AI Infra 存储高级研发工程师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "任职要求\n1. 计算机或相关专业本科及以上学历，5 年及以上存储、分布式系统或云基础设施研发经验。\n2. 扎实掌握操作系统、计算机网络、并发编程、数据结构与算法等基础知识。\n3. 熟悉分布式存储系统原理，具备文件系统、对象存储、块存储或缓存系统的设计和研发经验。\n4. 熟练使用 C/C++、Rust、Go 中至少一种语言，具备高质量工程代码和系统调优能力。\n"
+          },
+          {
+            "id": "7593260014921173294",
+            "title": "资产与资源运营工程师",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、大学本科及以上学历，计算机、电子工程或相关专业，具有 2 年以上 IT 技术相关经验或资产管理相关经验。\n2、熟悉 Linux / Unix 系统，掌握常用命令和问题排查方法，具备独立分析和解决问题的能力。\n3、对计算、存储、网络至少一个方向有较深入理解，熟悉服务器硬件（CPU、内存、NVMe SSD、网卡等）基本原理。\n4、有较强的逻辑思维，对数据敏感"
+          },
+          {
+            "id": "7675569100701518122",
+            "title": "高可用架构师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "我们期望你具备\n1. 计算机、软件工程或相关专业本科及以上学历，具备扎实的计算机基础。\n2. 具备 5 年及以上后端、平台、基础设施或架构相关经验，有大型互联网业务稳定性或高可用架构建设经验。\n3. 有多机房、多地域容灾或多活架构实践经验，理解流量治理、限流降级、熔断、隔离、容灾切换等核心机制。\n4. 有稳定性体系建设经验，能够推动 SLO/SLI、容量管理"
+          },
+          {
+            "id": "7654150208464668971",
+            "title": "MaaS 架构师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "本科及以上学历，计算机科学或相关专业，5 年以上后端架构或 AI 基础设施相关经验\n精通 C++ / Python / Go 中至少两门语言，具备扎实的系统编程能力\n深刻理解LLM原理（Attention 机制、KV Cache、Batching 策略等）\n具备大规模 GPU 集群的架构设计与调度经验，熟悉 Kubernetes 及 GPU 相关调度机制\n熟"
+          },
+          {
+            "id": "7648850059137059115",
+            "title": "增长技术-服务端研发",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 5年以上后端/服务端/增长技术/广告技术/数据平台相关研发经验。\n2. 熟悉 Go、Java、Python、Node.js 等至少一种后端开发语言。\n3. 熟悉接口设计、任务调度、日志采集、消息队列、数据库、缓存等服务端基础能力。\n4. 有埋点、归因、广告回传、渠道追踪、A/B 实验、数据平台等相关经验优先。\n5. 对增长业务有兴趣，能理解新增、激活、"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 120,
+      "alerts": [
+        "65% 的职位没识别出工作年限"
+      ]
+    },
+    {
+      "key": "lixiang",
+      "name": "理想汽车",
+      "fetched_at": "2026-11-08T08:13:11+00:00",
+      "jobs": 312,
+      "category_inferred": 188,
+      "category_inferred_rate": 0.6026,
+      "years_from_text": 242,
+      "years_from_official_field": 0,
+      "years_not_found": 70,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 70,
+      "years_unspecified_rate": 0.2244,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 10,
+      "missing_requirement_rate": 0.0321,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "7659323706272008467",
+            "title": "【基座模型】高级算法工程师（智能体强化学习方向）",
+            "category": "技术",
+            "url": "https://li.jobs.feishu.cn/index/position/7659323706272008467/detail"
+          },
+          {
+            "id": "7469699388370880822",
+            "title": "玻璃天窗系统工程师",
+            "category": "技术",
+            "url": "https://li.jobs.feishu.cn/index/position/7469699388370880822/detail"
+          },
+          {
+            "id": "7605473274760808767",
+            "title": "AI图编译器开发专家-北京、上海、杭州",
+            "category": "技术",
+            "url": "https://li.jobs.feishu.cn/index/position/7605473274760808767/detail"
+          },
+          {
+            "id": "7603721157800249636",
+            "title": "AI算子编译器开发专家",
+            "category": "技术",
+            "url": "https://li.jobs.feishu.cn/index/position/7603721157800249636/detail"
+          },
+          {
+            "id": "7664428950203451690",
+            "title": "测试开发工程师",
+            "category": "技术",
+            "url": "https://li.jobs.feishu.cn/index/position/7664428950203451690/detail"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "7469699388370880822",
+            "title": "玻璃天窗系统工程师",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 全日制本科或以上学历，车辆工程、机械等相关专业;\n2. 大学英语CET-4级或以上，有良好的英语口语及书写能力;\n3. 熟悉玻璃天窗系统相关零部件的最新技术和相关法规的要求，并熟练掌握相关产品标准；\n4. 从事玻璃天窗系统或开发工作5年以上，熟悉整车开发流程，具有2个以上车型项目开发经验，具有玻璃天窗系统规划和设计能力;\n5. 熟悉玻璃天窗系统相关零件"
+          },
+          {
+            "id": "7603721157800249636",
+            "title": "AI算子编译器开发专家",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、计算机、算法、软件工程、电子工程及相关专业硕士毕业；\n2、5年以上 C/C++/汇编 开发经验；\n3、1年以上高性能算子优化或者编译器开发经验；\n4、熟悉主流深度学习算法者尤佳。"
+          },
+          {
+            "id": "7469677652376766758",
+            "title": "白车身高级工程师（架构集成）",
+            "years": "8年以上",
+            "source": "任职要求",
+            "source_excerpt": "全日制本科或以上学历，车辆工程、机械等相关专业；\n扎实的理论功底，熟悉相关理论及实际应用，能够基于理论基础阐述设计和选型方案；\n掌握专业发展方向，能够引领和保持专业技术水平处于行业头部；\n工作中熟练的英语口语及书写能力；\n8年以上汽车主机厂（OEM）工作经历，其中至少某一主机厂连续工作5年以上；\n2个（含）以上完整整车项目（立项到SOP）白车身工作经历；\n1"
+          },
+          {
+            "id": "7699327388904032554",
+            "title": "具身智能汽车测试工程师",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "本科及以上学历，2年及以上智能驾驶行业车辆系统集成工作经历\n熟悉车辆结构，对智能驾驶系统E/E架构有深入了解\n动手能力较强，可独立完成部分车辆改制任务 \n熟悉驾驶辅助系统的典型功能及其系统设计逻辑，能识别系统功能链路中各个模块的数据流传递关系\n车辆驾驶技能熟练，驾驶里程达到5,000km以上\n对于传感器的数据采集系统有完整的理解或解决思路\n熟悉Liunx环境"
+          },
+          {
+            "id": "7664819849999370559",
+            "title": "【人形机器人】端侧软件工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "任职要求:\n1.本科及以上，计算机 / 机器人 / 自动化相关专业；\n2.3 年以上机器人 / 嵌入式应用层 / 系统软件开发经验；\n3.C++20 与 Python 熟练，熟悉 Linux 应用层开发；\n4.熟悉 ROS2 或同类中间件、状态机 / 框架 / 事件驱动设计；\n5.良好的接口抽象与工程化能力。\n加分项:\n1.有人形 / 移动机器人整机端软件落"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 312,
+      "alerts": [
+        "60% 的职位类别靠职位名推断"
+      ]
+    },
+    {
+      "key": "nio",
+      "name": "蔚来",
+      "fetched_at": "2026-11-08T08:14:09+00:00",
+      "jobs": 318,
+      "category_inferred": 318,
+      "category_inferred_rate": 1.0,
+      "years_from_text": 226,
+      "years_from_official_field": 79,
+      "years_not_found": 13,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 13,
+      "years_unspecified_rate": 0.0409,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 0,
+      "missing_requirement_rate": 0.0,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "7568848741303257382",
+            "title": "外饰总布置工程师",
+            "category": "技术",
+            "url": "https://nio.jobs.feishu.cn/index/position/7568848741303257382/detail"
+          },
+          {
+            "id": "7602833652518668598",
+            "title": "内饰总布置工程师",
+            "category": "技术",
+            "url": "https://nio.jobs.feishu.cn/index/position/7602833652518668598/detail"
+          },
+          {
+            "id": "7415633360330410277",
+            "title": "资深大语言模型算法工程师/专家",
+            "category": "技术",
+            "url": "https://nio.jobs.feishu.cn/index/position/7415633360330410277/detail"
+          },
+          {
+            "id": "7392165789586213170",
+            "title": "车辆运动控制-制动软件专家",
+            "category": "技术",
+            "url": "https://nio.jobs.feishu.cn/index/position/7392165789586213170/detail"
+          },
+          {
+            "id": "7644825237817444662",
+            "title": "算法工程师",
+            "category": "技术",
+            "url": "https://nio.jobs.feishu.cn/index/position/7644825237817444662/detail"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "7568848741303257382",
+            "title": "外饰总布置工程师",
+            "years": "5年",
+            "source": "任职要求",
+            "source_excerpt": "- 工程类相关专业本科及以上学历，汽车工程相关专业优先。\n    - 至少5年整车概念集成或总布置相关经验，且至少1年模块开发经验（车身或外饰领域优先）。\n    - 熟悉各工程组的广泛组件工作知识，熟悉性能集成相关知识。\n    - 具备良好的沟通、协调及组织能力。  \n    - 优秀的英语口语和书面表达能力。\n    - V5/V6 熟练使用3D CA"
+          },
+          {
+            "id": "7602833652518668598",
+            "title": "内饰总布置工程师",
+            "years": "5年",
+            "source": "任职要求",
+            "source_excerpt": "- 工程类相关专业本科及以上学历，汽车工程相关专业优先。\n    - 至少5年整车概念集成或总布置相关经验，且至少1年模块开发经验（内饰领域优先）。\n    - 熟悉各工程组的广泛组件工作知识，熟悉性能集成相关知识。\n    - 具备良好的沟通、协调及组织能力。  \n    - 优秀的英语口语和书面表达能力。\n    - V5/V6 熟练使用3D CAD系统"
+          },
+          {
+            "id": "7392165789586213170",
+            "title": "车辆运动控制-制动软件专家",
+            "years": "10年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 精通电液线控制动领域产品（ONE BOX/TWO BOX/EMB等）的软件架构。\n2. 精通电液线控制动领域产品软件功能算法，如TCS ABS DTC，具有全新功能正向开发经验。\n3. 熟悉L3+制动系统开发要求及主客观评价和验收要求，至少有1-2个底盘电控量产产品系统架构设计和功能开发经验\n4. 熟悉ASPICE体系，拥有ASPICE实施经验；熟悉I"
+          },
+          {
+            "id": "7644825237817444662",
+            "title": "算法工程师",
+            "years": "2-5年",
+            "source": "任职要求",
+            "source_excerpt": "1.本科及以上学历，计算机、人工智能、自动化、电子、数学等相关专业，2-5年相关工作经验。 \n2.具备机器学习与深度学习基础，理解 CNN、RNN、Transformer、Attention、LLM 等主流模型原理。 \n3.熟悉 Python 开发，具备 PyTorch、FastAPI、向量数据库、RAG 系统等相关开发经验。 \n4.熟悉至少一种 Agent"
+          },
+          {
+            "id": "7606250615199893766",
+            "title": "AI 应用研发工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历，计算机相关专业，3 年及以上后端 / AI 应用研发经验。\n2. 精通 Java，熟悉 Python，具备扎实的工程化与代码功底。\n3. 有真实上线的大模型应用落地经验，深度参与过至少一类：RAG 知识库、智能对话、Agent 工作流、函数调用、多模态 AI 应用等。\n4. 熟悉向量数据库、Embedding、Prompt 工程、评测与"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 318,
+      "alerts": [
+        "100% 的职位类别靠职位名推断"
+      ]
+    },
+    {
+      "key": "xpeng",
+      "name": "小鹏汽车",
+      "fetched_at": "2026-11-08T08:13:42+00:00",
+      "jobs": 549,
+      "category_inferred": 549,
+      "category_inferred_rate": 1.0,
+      "years_from_text": 361,
+      "years_from_official_field": 0,
+      "years_not_found": 188,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 188,
+      "years_unspecified_rate": 0.3424,
+      "missing_city": 0,
+      "missing_city_rate": 0.0,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 8,
+      "missing_requirement_rate": 0.0146,
+      "samples": {
+        "inferred_category": [
+          {
+            "id": "7584745357390432554",
+            "title": "人形机器人软件测试高级/资深工程师/专家【高优】",
+            "category": "技术",
+            "url": "https://xiaopeng.jobs.feishu.cn/index/position/7584745357390432554/detail"
+          },
+          {
+            "id": "7639287111359760666",
+            "title": "AI Agent数据闭环工程师",
+            "category": "技术",
+            "url": "https://xiaopeng.jobs.feishu.cn/index/position/7639287111359760666/detail"
+          },
+          {
+            "id": "7654883248770550052",
+            "title": "【探索者】发动机系统控制工程师",
+            "category": "技术",
+            "url": "https://xiaopeng.jobs.feishu.cn/index/position/7654883248770550052/detail"
+          },
+          {
+            "id": "7490774327760357695",
+            "title": "变更管理资深工程师/专家",
+            "category": "技术",
+            "url": "https://xiaopeng.jobs.feishu.cn/index/position/7490774327760357695/detail"
+          },
+          {
+            "id": "7699311355177732415",
+            "title": "传感器开发/声学DRE",
+            "category": "技术",
+            "url": "https://xiaopeng.jobs.feishu.cn/index/position/7699311355177732415/detail"
+          }
+        ],
+        "years_from_text": [
+          {
+            "id": "7584745357390432554",
+            "title": "人形机器人软件测试高级/资深工程师/专家【高优】",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历，计算机/电子/自动化/机器人工程等相关专业；\n2. 2年以上的复杂的软件工程/嵌入式/分布式系统/多模型交互等领域的测试经验（其一或以上）；\n3. 具备一定的编程能力(Python/C++/Java)，具备良好的编码风格参与编写自动化框架/运控脚本/测试平台开发等；\n4. 熟悉使用SIL/HIL其中之一的技术，对仿真软件(MuJoCo/"
+          },
+          {
+            "id": "7639287111359760666",
+            "title": "AI Agent数据闭环工程师",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 计算机科学、人工智能、自动化、车辆工程等相关专业，硕士及以上学历，3年以上多模态物理AI或AI数据平台相关工作经验。深入理解多模态物理AI数据闭环的架构与流程，有车端数据上传、云端数据处理、训练与仿真集成的一体化实践经验。\n2. 优先考虑具备大规模AI训练数据治理经验的候选人，包括数据标准体系建设、数据质量治理、数据资产管理、成本与效率优化，以及海量多"
+          },
+          {
+            "id": "7654883248770550052",
+            "title": "【探索者】发动机系统控制工程师",
+            "years": "1-3年",
+            "source": "任职要求",
+            "source_excerpt": "1、本科以上学历，1-3年工作经验，熟悉整车和发动机结构及工作原理；\n2、熟悉发动机启动、燃油系统闭环、混合气、爆震及排放标定；\n3、了解整车开发流程和整车标定开发流程；\n4、具有发动机控制系统策略、软件或标定开发经验；\n5、具备良好的沟通协调能力，思路清晰，工作积极主动，抗压能力强，吃苦耐劳；\n6、具备AI意识，且熟练使用AI工具者优先。"
+          },
+          {
+            "id": "7490774327760357695",
+            "title": "变更管理资深工程师/专家",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、本科及以上学历，5年及以上整车厂或零部件公司变更管理或项目管理经验，专业不限；\n2、完整参与过整车项目开发过程；\n3、熟悉变更管理/BOM/SAP相关系统，有较好的文档撰写和汇报能力； \n4、极强的自驱力、思考力、执行力、项目管理能力、沟通协作能力，正直、简单高效、积极乐观；"
+          },
+          {
+            "id": "7699311355177732415",
+            "title": "传感器开发/声学DRE",
+            "years": "3-6年",
+            "source": "任职要求",
+            "source_excerpt": "任职要求\n1. 学历专业：硕士及以上，机械电子、电子信息、仪器、声学、工程力学、微电子、材料工程等相关专业。\n2. 核心经验：3–6 年传感器、声学麦克风 DRE / 零部件开发经验；有压阻 / 电容柔性触觉传感器、压力阵列、柔性电子皮肤开发经验优先；车规项目背景优先，熟悉 APQP、DFMEA、DVP&R、PPAP、AEC-Q100。\n3. 技术能力\n  "
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 1,
+      "jobs_previous": 548,
+      "alerts": [
+        "100% 的职位类别靠职位名推断"
+      ]
+    },
+    {
+      "key": "ctrip",
+      "name": "携程",
+      "fetched_at": "2026-11-08T08:12:27+00:00",
+      "jobs": 137,
+      "category_inferred": 0,
+      "category_inferred_rate": 0.0,
+      "years_from_text": 113,
+      "years_from_official_field": 0,
+      "years_not_found": 24,
+      "years_source_unrecorded": 0,
+      "years_unspecified": 24,
+      "years_unspecified_rate": 0.1752,
+      "missing_city": 1,
+      "missing_city_rate": 0.0073,
+      "missing_direct_link": 0,
+      "missing_direct_link_rate": 0.0,
+      "missing_requirement": 2,
+      "missing_requirement_rate": 0.0146,
+      "samples": {
+        "inferred_category": [],
+        "years_from_text": [
+          {
+            "id": "MJ027010",
+            "title": "风控策略分析师",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 熟悉运筹优化算法（如线性规划、动态规划等）及价格预测方法（如时间序列分析、机器学习模型等），具备实际业务落地经验；  \n2. 2年以上风险管理工作经验，了解风险管理全流程（识别、评估、监控、应对），有电商风控建模或运筹优化经验者优先；  \n3. 熟练使用Excel、SQL、Hive等工具及至少一种数据分析工具（如R、Python），具备较强的数据敏感度"
+          },
+          {
+            "id": "MJ036897",
+            "title": "HR产品经理",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、5 年以上 B 端产品经验，有 HR Tech 领域实操经历，熟悉主流 ATS 产品（Moka、北森、iCIMS、Greenhouse 等）的产品逻辑和集成方式\n2、对 AI 产品有真实认知和实践经验—— 不只是知道 AI 能做什么，而是能判断哪些场景适合 AI 介入、哪些场景 AI 反而会降低体验，能设计合理的人机协作流程\n3、了解大模型时代的产品设计"
+          },
+          {
+            "id": "MJ033215",
+            "title": "AI产品经理AI Product Manager",
+            "years": "5年以上",
+            "source": "任职要求",
+            "source_excerpt": "1. 本科及以上学历，计算机、数学、统计学、信息管理等相关专业背景者优先，有海外背景或国际化工作经验；\n2. 5年以上产品工作经验，沟通能力强，面对困难和挑战，有创新思路和目标导向意识；对AI行业了解，有1～2年AI相关从业经验，并且能保持对相关领域的学习和探索；\n3. 有技术背景，对技术有较强的理解力，能与算法和工程团队进行高效沟通，理解技术实现细节与挑战"
+          },
+          {
+            "id": "MJ018727",
+            "title": "信贷产品经理（贷超方向）",
+            "years": "3年以上",
+            "source": "任职要求",
+            "source_excerpt": "1、产品能力优秀，有较强的抽象和总结能力，能够深度分析和理解用户需求，逻辑性强，有目标感\n2、熟悉信贷产品系统流程，有金融领域产品设计经验\n3、3年以上产品工作经验，有现金贷相关业务经验优先\n4、优秀的协调沟通能力、执行能力、有自主驱动能力"
+          },
+          {
+            "id": "MJ020051",
+            "title": "后端开发工程师",
+            "years": "2年以上",
+            "source": "任职要求",
+            "source_excerpt": "大学本科以上学历，计算机、软件工程及相关专业毕业；\n熟悉数据结构及算法，精通任一后台开发语言（包括但不限于Java、C++、NodeJS、Golang等）；懂机器学习更佳；\n有2年以上大型互联网后台服务设计经验；\n具备优雅的编码风格及良好的文档能力；\n逻辑思维能力强，工作规范，良好的沟通能力、较强的技术热情、团队协作精神和责任心。"
+          }
+        ],
+        "missing_direct_link": []
+      },
+      "jobs_change": 0,
+      "jobs_previous": 137,
+      "alerts": []
+    }
+  ],
+  "previous_report": "2026-11-07.json",
+  "alerts": [
+    "字节跳动：55% 的职位没识别出工作年限",
+    "京东：77% 的职位没识别出工作年限",
+    "小米：100% 的职位类别靠职位名推断",
+    "智谱：37%（20 条）缺工作城市",
+    "智谱：9%（5 条）缺任职要求",
+    "智谱：78% 的职位类别靠职位名推断",
+    "MiniMax：65% 的职位没识别出工作年限",
+    "理想汽车：60% 的职位类别靠职位名推断",
+    "蔚来：100% 的职位类别靠职位名推断",
+    "小鹏汽车：100% 的职位类别靠职位名推断"
+  ]
+}

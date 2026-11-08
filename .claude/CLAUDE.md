@@ -27,7 +27,7 @@ reports/                   每次更新的质量报告（进 main）
 ## 更新数据（用户说「更新一下数据」）
 
 ```bash
-python3 scripts/update.py     # 约 7 分钟，总耗时 = 最慢那家（目前是腾讯）。确定性脚本，不需要 API key
+python3 scripts/update.py     # 约 7–8 分钟，总耗时 = 最慢那家（腾讯或蚂蚁）。确定性脚本，不需要 API key
 ```
 
 1. 失败的公司会自动重试一次，仍失败才中止（且不合并）→ runbook「抓取失败」。
