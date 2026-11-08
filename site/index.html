@@ -10,6 +10,7 @@
   try { var t = localStorage.getItem('jobs-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/state.js" defer></script>
 <script src="assets/app.js" defer></script>
 </head>
 <body>
@@ -21,7 +22,7 @@
       <button class="btn" id="themeBtn" type="button" aria-label="切换深色 / 浅色">◐ 主题</button>
     </div>
   </div>
-  <p class="lead">汇总各公司官网公开的社招岗位，对比数量、工作年限要求和城市分布。每周一更新。</p>
+  <p class="lead">汇总各公司官网公开的社招岗位，对比数量、工作年限要求和城市分布。数据是定期抓取的快照，以官网为准。</p>
   <p class="meta" id="meta">加载中…</p>
 </header>
 

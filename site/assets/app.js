@@ -1,4 +1,4 @@
-/* 社招职位看板：纯静态，数据来自 data/jobs.json（scripts/build.py 生成）。
+/* 社招职位看板：纯静态，数据来自 data/jobs.json（scripts/build.py 生成）。筛选状态的 URL 格式见 state.js。
    职位名、部门、职位描述都来自第三方招聘站点，一律当数据处理：只用 textContent / 文本节点渲染，不拼 innerHTML。 */
 (() => {
   'use strict';
@@ -24,9 +24,12 @@
   let CN_ORDER = [];      // 国家/地区下拉的选项顺序（按全部职位数）
   let CO = {};                             // company key -> {name, list_url, note, idx}
   const S = { range: 'all', cos: new Set(), cats: new Set(), source: '', country: '', cities: new Set(), yb: '', q: '', sort: 'date', page: 0, view: 'chart', fac: {}, facCo: null };
-  const inferred = j => j.rc.includes('按职位名识别');
+  const inferred = j => j.rc.includes('按职位名识别');   // 和 scripts/lib/schema.py 的 INFERRED_MARK 一致
   const jdCache = {};
-  let searchMatches = null, searchVersion = 0;
+  // 全文搜索：只加载并扫描「当前筛选范围内的公司」的职位描述（见 ensureSearch）。
+  // searchSets: 公司 key -> 命中当前关键词的职位 ID 集合；searchFailed: 加载失败的公司；searchStamp: 关键词变了就作废在途的扫描。
+  let searchSets = new Map(), searchFailed = new Set(), searchStamp = 0;
+  const resetSearch = () => { searchSets = new Map(); searchFailed = new Set(); ++searchStamp; };
 
   // ---------- 提示框 ----------
   const tip = $('#tip');
@@ -72,7 +75,7 @@
     if (S.q) {
       const q = S.q.toLowerCase();
       if (!j.t.toLowerCase().includes(q) && !j.dp.toLowerCase().includes(q)
-          && !(searchMatches && searchMatches.has(`${j.c}\u0000${j.id}`))) return false;
+          && !(searchSets.get(j.c) && searchSets.get(j.c).has(j.id))) return false;
     }
     return true;
   }
@@ -260,25 +263,29 @@
     return jdCache[key];
   }
 
-  async function searchDescriptions(q, version) {
-    S.q = q;
-    searchMatches = null;
-    $('#searchStatus').textContent = q ? '正在搜索职位描述与任职要求…' : '';
-    update(true);
-    if (!q) return;
-    const results = await Promise.allSettled(D.companies.map(c => loadJD(c.key)));
-    if (version !== searchVersion) return;
-    const matches = new Set(), needle = q.toLowerCase();
-    results.forEach((result, i) => {
-      if (result.status !== 'fulfilled') return;
-      for (const [id, fields] of Object.entries(result.value))
-        if (fields.some(v => (v || '').toLowerCase().includes(needle)))
-          matches.add(`${D.companies[i].key}\u0000${id}`);
+  /* 按需加载职位描述并搜索。职位描述约 23 MB（压缩后 8 MB），所以只加载当前公司筛选范围内的公司：
+     选了某几家公司就只下载这几家；没选才加载全部。公司筛选变了会再次进入这里，补加载新增的公司。 */
+  async function ensureSearch() {
+    const status = $('#searchStatus');
+    if (!S.q) { status.textContent = ''; return; }
+    const scope = S.cos.size ? [...S.cos] : D.companies.map(c => c.key);
+    const need = scope.filter(k => !searchSets.has(k) && !searchFailed.has(k));
+    if (!need.length) {
+      status.textContent = scope.some(k => searchFailed.has(k)) ? '部分职位描述未加载，结果可能不完整；修改关键词可重试。' : '';
+      return;
+    }
+    status.textContent = '正在搜索职位描述与任职要求…';
+    const stamp = searchStamp, needle = S.q.toLowerCase();
+    const results = await Promise.allSettled(need.map(loadJD));
+    if (stamp !== searchStamp) return;                 // 关键词已经变了，丢弃这次结果
+    results.forEach((r, i) => {
+      if (r.status !== 'fulfilled') { searchFailed.add(need[i]); return; }
+      const hits = new Set();
+      for (const [id, fields] of Object.entries(r.value))
+        if (fields.some(v => (v || '').toLowerCase().includes(needle))) hits.add(id);
+      searchSets.set(need[i], hits);
     });
-    searchMatches = matches;
-    $('#searchStatus').textContent = results.some(r => r.status === 'rejected')
-      ? '部分职位描述未加载，结果可能不完整；请重试搜索。' : '';
-    update(true);
+    update(false);                                      // 带着新的命中结果重画；下一轮 need 为空，不会死循环
   }
 
   async function fillDetail(td, j) {
@@ -311,12 +318,16 @@
       h('td', null,
         h('div', null, btn, inferred(j) ? h('span', { class: 'inferred', title: '官网没有职位类别，本看板按职位名称推断；请以官网职位描述为准' }, '类别推断') : null),
         j.dp ? h('div', { class: 'dept' }, j.dp) : null,
-        h('div', { class: 'mobile-meta' }, `${CO[j.c].name} · ${j.cat} · ${j.ci.join('、') || '—'} · ${j.y}`)),
+        h('div', { class: 'mobile-meta' }, `${CO[j.c].name} · ${j.cat} · ${j.ci.join('、') || '—'}`)),   // 年限在自己的列里，这里不重复
       h('td', { class: 'col-cat' }, j.cat),
       h('td', { class: 'col-city' }, j.ci.join('、') || '—'),
       h('td', { class: 'col-y' }, j.y, j.yp ? h('div', { class: 'pref' }, '优先 ' + j.yp) : null),
       h('td', { class: 'col-dt' }, j.dt));
     let detail = null;
+    tr.addEventListener('click', e => {               // 点整行都能展开（和官网一样），但点链接 / 按钮本身、或在选中文字时不触发
+      if (e.target.closest('a, button') || String(getSelection()).length) return;
+      btn.click();
+    });
     btn.addEventListener('click', () => {
       if (detail) { detail.remove(); detail = null; btn.setAttribute('aria-expanded', 'false'); return; }
       const td = h('td', { colspan: 6 });
@@ -334,11 +345,15 @@
     S.page = Math.min(S.page, pages - 1);
     $('#jobsBody').replaceChildren(...list.slice(S.page * PAGE, (S.page + 1) * PAGE).map(jobRow));
     $('#listCount').textContent = `${fmt(list.length)} 个`;
-    const go = d => () => { S.page += d; renderTable(F); $('#listH').scrollIntoView({ block: 'start' }); };
+    const goTo = p => { S.page = Math.min(pages - 1, Math.max(0, p)); renderTable(F); $('#listH').scrollIntoView({ block: 'start' }); };
+    const jump = h('input', { type: 'number', min: 1, max: pages, value: S.page + 1, 'aria-label': '跳转到第几页' });
+    jump.addEventListener('change', () => { if (jump.value !== '') goTo(+jump.value - 1); });
     $('#pager').replaceChildren(
-      h('button', { class: 'btn', type: 'button', disabled: S.page === 0, onclick: go(-1) }, '上一页'),
-      h('span', null, list.length ? `第 ${S.page + 1} / ${pages} 页` : '没有符合条件的职位'),
-      h('button', { class: 'btn', type: 'button', disabled: S.page >= pages - 1, onclick: go(1) }, '下一页'));
+      h('button', { class: 'btn', type: 'button', disabled: S.page === 0, onclick: () => goTo(0) }, '首页'),
+      h('button', { class: 'btn', type: 'button', disabled: S.page === 0, onclick: () => goTo(S.page - 1) }, '上一页'),
+      list.length ? h('span', null, '第 ', jump, ` / ${pages} 页`) : h('span', null, '没有符合条件的职位'),
+      h('button', { class: 'btn', type: 'button', disabled: S.page >= pages - 1, onclick: () => goTo(S.page + 1) }, '下一页'),
+      h('button', { class: 'btn', type: 'button', disabled: S.page >= pages - 1, onclick: () => goTo(pages - 1) }, '末页'));
   }
 
   // ---------- 公司专属筛选 ----------
@@ -390,7 +405,7 @@
     const rest = D.jobs.filter(j => passes(j, 'range'));
     $('#fRange').replaceChildren(...rows.map(([v, t]) => {
       const n = v === 'all' ? rest.length : rest.filter(j => j.dt >= cutoff(+v)).length;
-      return h('option', { value: v }, `${t}（${fmt(n)}）`);
+      return h('option', { value: v }, v === 'all' ? t : `${t}（${fmt(n)}）`);   // 「全部」不带数字，和其他下拉一致
     }));
     $('#fRange').value = S.range;
     const cn = countMap('country', j => j.cn);
@@ -418,7 +433,40 @@
     renderCharts(lastF);
     renderTable(lastF);
     $('#fReset').hidden = isDefault();
+    for (const sel of document.querySelectorAll('.filters select')) sel.classList.toggle('on', sel.value !== '' && sel.value !== 'all');
     DD.company.sync(); DD.cat.sync(); DD.city.sync(); facetDD.forEach(d => d.sync());
+    writeUrl();
+    ensureSearch();
+  }
+
+  // ---------- 筛选状态 <-> 地址栏（格式见 state.js） ----------
+  function writeUrl() {
+    const qs = JobsState.encodeState(S);
+    try { history.replaceState(null, '', qs ? '?' + qs : location.pathname); } catch (e) { /* 沙盒 / file:// 里不允许就算了 */ }
+  }
+  // 打开页面时从地址栏恢复筛选；取值都对照 jobs.json 校验，过期的链接（公司下线、城市没了）会被安静地忽略。
+  function readUrl() {
+    const u = JobsState.decodeState(location.search);
+    const keep = (vals, ok) => vals.filter(v => ok.has(v));
+    const cities = new Set(D.jobs.flatMap(j => j.ci));
+    S.range = ['7', '30', '90'].includes(u.range) ? u.range : 'all';
+    S.source = ['official', 'inferred'].includes(u.source) ? u.source : '';
+    S.country = CN_ORDER.includes(u.country) ? u.country : '';
+    S.yb = /^\d+$/.test(u.yb) && +u.yb < D.buckets.length ? u.yb : '';
+    S.sort = Object.prototype.hasOwnProperty.call(cmp, u.sort) ? u.sort : 'date';
+    S.view = u.view === 'table' ? 'table' : 'chart';
+    S.q = u.q.trim();
+    for (const v of keep(u.cos, new Set(Object.keys(CO)))) S.cos.add(v);
+    for (const v of keep(u.cats, new Set(D.categories))) S.cats.add(v);
+    for (const v of keep(u.cities, cities)) S.cities.add(v);
+    syncFacets();                                       // 选中恰好一家公司时才会建出专属筛选
+    for (const [i, vals] of Object.entries(u.fac)) {
+      const def = S.fac[i] && CO[S.facCo].facets[i];
+      if (def) for (const v of keep(vals, new Set(def.values.map(x => x[0])))) S.fac[i].add(v);
+    }
+    $('#fSort').value = S.sort;
+    $('#fQuery').value = S.q;
+    for (const o of document.querySelectorAll('.seg-ctl button')) o.setAttribute('aria-pressed', o.dataset.view === S.view);
   }
 
   /* 可多选的下拉框。set 是选中值的集合（空 = 不限制）；选项里的勾选框是原生 input，键盘可达，Esc 关闭并回到按钮。 */
@@ -473,6 +521,8 @@
     btn.addEventListener('click', () => {
       if (!menu.hidden) return self.close();
       closeAll(self); menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); openMenus.add(self);
+      menu.style.left = ''; menu.style.right = '';
+      if (menu.getBoundingClientRect().right > innerWidth - 8) { menu.style.left = 'auto'; menu.style.right = '0'; }   // 靠右的下拉别伸出屏幕
       if (search) search.focus();
     });
     root.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { self.close(); btn.focus(); } });
@@ -518,15 +568,13 @@
     $('#fSort').onchange = e => { S.sort = e.target.value; update(true); };
     let timer;
     $('#fQuery').oninput = e => {
-      const q = e.target.value.trim(), version = ++searchVersion;
+      const q = e.target.value.trim();
       clearTimeout(timer);
-      timer = setTimeout(() => searchDescriptions(q, version), 150);
+      timer = setTimeout(() => { S.q = q; resetSearch(); update(true); }, 150);
     };
     $('#fReset').onclick = () => {
-      ++searchVersion;
       clearTimeout(timer);
-      searchMatches = null;
-      $('#searchStatus').textContent = '';
+      resetSearch();
       Object.assign(S, { range: 'all', source: '', country: '', yb: '', q: '' }); S.cos.clear(); S.cats.clear(); S.cities.clear();
       $('#fQuery').value = '';
       update(true);
@@ -536,6 +584,7 @@
         S.view = b.dataset.view;
         for (const o of document.querySelectorAll('.seg-ctl button')) o.setAttribute('aria-pressed', o === b);
         renderCharts(lastF);
+        writeUrl();
       };
 
     $('#catLegend').replaceChildren(...D.categories.map((c, i) =>
@@ -545,14 +594,15 @@
   }
 
   function buildTexts() {
-    $('#meta').textContent = `页面生成 ${D.generated} · ${D.companies.length} 家公司 · 共 ${fmt(D.jobs.length)} 个职位`;
+    const age = Math.floor((Date.now() - Date.parse(D.generated + 'T00:00:00Z')) / 864e5);
+    $('#meta').textContent = `数据日期 ${D.generated}${age > 10 ? `（已 ${age} 天未更新，职位可能已下架）` : ''} · ${D.companies.length} 家公司 · 共 ${fmt(D.jobs.length)} 个职位`;
     const noLink = D.companies.filter(c => !D.jobs.some(j => j.c === c.key && j.u)).map(c => c.name);
     const updated = D.companies.filter(c => c.date_label !== '发布时间').map(c => c.name);
     const guessed = D.jobs.filter(inferred).length;
     $('#foot').replaceChildren(
       h('p', null, '说明'),
       h('ul', null,
-        h('li', null, `数据来自各公司官网公开的招聘接口，每周一自动检查，人工核查后发布；这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
+        h('li', null, `数据来自各公司官网公开的招聘接口，定期抓取，人工检查后发布，是某一天的快照：已下架的职位可能还会在这里留一阵，请以官网为准。这里只收录社招的${D.categories.map(c => `「${c}」`).join('')}岗位。`),
         h('li', null, '各公司最近成功抓取时间（北京时间）：', ...D.companies.map((c, i) =>
           `${i ? '；' : ''}${c.name} ${c.fetched_at ? new Date(c.fetched_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) : '未记录'}`)),
         h('li', null, '本次数据质量报告：', h('a', { href: 'data/quality.json' }, '查看 JSON')),
@@ -584,6 +634,7 @@
       bindTheme();
       buildControls();
       buildTexts();
+      readUrl();
       update(true);
       let lastW = 0;
       new ResizeObserver(() => {                                 // 容器宽度变了才重画，避免无谓重绘
@@ -592,6 +643,6 @@
       }).observe($('#charts'));
     })
     .catch(err => {
-      $('#meta').textContent = '数据加载失败：' + err.message + '。本地预览请运行 python3 -m http.server -d site 8000，不能直接双击打开 html。';
+      $('#meta').textContent = '数据加载失败：' + err.message + '。本地预览请运行 python3 scripts/serve.py，不能直接双击打开 html。';
     });
 })();

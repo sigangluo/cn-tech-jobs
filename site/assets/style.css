@@ -106,10 +106,12 @@ a { color: var(--link); }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
 
 .btn {
+  display: inline-flex; align-items: center; min-height: 34px;   /* 和筛选控件同高，排在一行时才对得齐 */
   font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; text-decoration: none;
+  border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; cursor: pointer; text-decoration: none;
 }
 .btn:hover { background: var(--wash); }
+.btn[hidden] { display: none; }   /* display:inline-flex 会盖掉 hidden 属性 */
 
 /* 筛选栏：一行，位于所有内容上方 */
 .filters {
@@ -118,27 +120,35 @@ a { color: var(--link); }
   border: 1px solid var(--border); border-radius: 12px;
 }
 .fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; line-height: 1.2; color: var(--ink-2); }
-.fld.inline { flex-direction: row; align-items: center; gap: 8px; }
+.filters .fld:not(.grow) { flex: 0 0 160px; }   /* 所有下拉统一宽度，换行后也整齐 */
+.fld.inline { flex-direction: row; align-items: center; gap: 8px; white-space: nowrap; }
+.fld.inline select { width: auto; min-width: 160px; }
 .fld.grow { flex: 1 1 200px; min-width: 160px; }
 .fld-l { line-height: 1.2; }
-select, input[type="search"] {
-  font: inherit; font-size: 14px; color: var(--ink); background: var(--page);
-  border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-height: 34px;
+/* 所有筛选控件（原生 select、多选下拉按钮 .dd-btn、搜索框）共用同一套外观：同高、同宽、同样的箭头、同样的悬停 / 已选状态。
+   改其中一个的样子时，三个一起看。 */
+select, input[type="search"], input[type="number"], .dd-btn {
+  font: inherit; font-size: 14px; color: var(--ink); background-color: var(--page);
+  border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; min-height: 34px;
+  -webkit-appearance: none; appearance: none;
 }
+select, .dd-btn {
+  width: 100%; padding-right: 30px; text-align: left; cursor: pointer; position: relative;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%;
+  background-size: 5px 5px; background-repeat: no-repeat;
+}
+select:hover, .dd-btn:hover { background-color: var(--wash); }
+select.on, .dd-btn.on { border-color: var(--ink); }   /* 已选了条件 */
 input[type="search"] { width: 100%; }
+input[type="number"] { width: 64px; min-height: 30px; padding: 2px 6px; text-align: center; -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button, input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+::placeholder { color: var(--muted); }
 .search-status { color: var(--ink-2); font-size: 11px; line-height: 1.2; }
 .search-status:empty { display: none; }
 /* 可多选的下拉框（公司、类别）：按钮显示当前选择，菜单里是带勾选框的选项 */
 .dd { position: relative; }
-.dd-btn {
-  font: inherit; font-size: 14px; color: var(--ink); background: var(--page); text-align: left;
-  border: 1px solid var(--border); border-radius: 8px; padding: 6px 30px 6px 10px; min-height: 34px; min-width: 132px;
-  cursor: pointer; position: relative; white-space: nowrap;
-}
-.dd-btn::after { content: ""; position: absolute; right: 11px; top: 50%; width: 6px; height: 6px; margin-top: -5px;
-  border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2); transform: rotate(45deg); }
-.dd-btn:hover { background: var(--wash); }
-.dd-btn.on { border-color: var(--ink); font-weight: 550; }
 .dd-menu {
   position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 340px; overflow: auto;
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px;
@@ -162,7 +172,6 @@ input[type="search"] { width: 100%; }
 .facets { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; padding-top: 12px; border-top: 1px solid var(--grid); }
 .facets[hidden] { display: none; }   /* display:flex 会盖掉 hidden 属性 */
 .facets .fac-title { font-size: 13px; font-weight: 600; color: var(--ink); align-self: center; }
-.facets .dd-btn { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 
 /* 概览 */
 .kpis { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
@@ -175,7 +184,7 @@ input[type="search"] { width: 100%; }
 .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 12px; flex-wrap: wrap; }
 .count { font-size: 14px; font-weight: 400; color: var(--ink-2); margin-left: 6px; }
 .seg-ctl { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.seg-ctl button { font: inherit; font-size: 13px; padding: 5px 14px; background: var(--surface); color: var(--ink-2); border: 0; cursor: pointer; }
+.seg-ctl button { font: inherit; font-size: 13px; padding: 0 14px; min-height: 32px; background: var(--surface); color: var(--ink-2); border: 0; cursor: pointer; }
 .seg-ctl button + button { border-left: 1px solid var(--border); }
 .seg-ctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
 
@@ -202,6 +211,7 @@ svg text { font-family: inherit; }
 .axisline { stroke: var(--axis); stroke-width: 1; }
 .row:focus-visible { outline: none; }
 .row:focus-visible .rowbg, .row:hover .rowbg { fill: var(--wash); }
+.row:focus-visible .rowbg { stroke: var(--link); stroke-width: 2; }   /* 键盘聚焦要看得见，只靠浅色底不够 */
 .rowbg { fill: transparent; }
 .row:hover .seg, .row:focus .seg { filter: brightness(1.08); }
 
@@ -236,6 +246,7 @@ svg text { font-family: inherit; }
 table.jobs { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.jobs th { text-align: left; font-size: 12px; font-weight: 500; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--grid); background: var(--surface); }
 table.jobs td { padding: 10px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.jobs tbody tr.job { cursor: pointer; }
 table.jobs tbody tr.job:hover { background: var(--wash); }
 .col-dt, .col-y { white-space: nowrap; }
 .col-co { white-space: nowrap; width: 1%; }
@@ -243,7 +254,10 @@ table.jobs tbody tr.job:hover { background: var(--wash); }
   font: inherit; color: var(--ink); background: none; border: 0; padding: 0; text-align: left; cursor: pointer; font-weight: 550;
 }
 .title-btn:hover { color: var(--link); }
-.title-btn::before { content: "▸"; display: inline-block; width: 1em; color: var(--ink-2); transition: transform .12s; }
+.title-btn::before {   /* 用边框画的三角：绕自己的中心旋转，展开前后位置不会漂移（字符 ▸ 旋转后会偏高） */
+  content: ""; display: inline-block; width: 0; height: 0; margin-right: 8px; vertical-align: middle;
+  border-left: 6px solid var(--ink-2); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .12s;
+}
 .title-btn[aria-expanded="true"]::before { transform: rotate(90deg); }
 .dept { color: var(--ink-2); font-size: 12px; margin-top: 2px; }
 .inferred { display: inline-block; margin-left: 6px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--ink-2); font-size: 11px; vertical-align: middle; }
@@ -267,6 +281,14 @@ tr.detail td { background: var(--page); padding: 14px 16px 18px; }
   .jd { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
+  /* 手机：筛选控件排成整齐的两列，搜索和按钮各占一整行 */
+  .filters { display: grid; grid-template-columns: 1fr 1fr; align-items: end; }
+  .filters .fld:not(.grow) { flex: none; min-width: 0; }
+  .filters .fld.grow, .filters #fReset, .filters .facets { grid-column: 1 / -1; }
+  .filters #fReset { justify-self: start; }
+  .facets { display: grid; grid-template-columns: 1fr 1fr; }
+  .facets .fac-title { grid-column: 1 / -1; }
+  .dd-menu { max-width: calc(100vw - 32px); }
   .col-cat, .col-city, .col-co { display: none; }
   .mobile-meta { display: block; }
   h1 { font-size: 22px; }
